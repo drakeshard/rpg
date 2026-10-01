@@ -7,8 +7,8 @@ export {
 } from "./definitions.js";
 export {
   decreaseResource,
-  increaseResource,
   type InitializeResourceOutcome,
+  increaseResource,
   initializeResource,
   type ResourceTransitionOutcome,
   setResourceCapacity,
