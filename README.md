@@ -4,41 +4,49 @@ Renderer-neutral RPG-domain mechanisms for Drakeshard games.
 
 ## Scope
 
-This repository is intended to host reusable RPG-domain contracts and mechanisms that have passed the Drakeshard shared-code admission process.
+This repository hosts RPG-domain incubation contracts and mechanisms that have passed the Drakeshard shared-code incubation process.
 It is not a universal game engine, Tactical library, combat engine, renderer integration, UI framework, or generic utility collection.
 
-Game-specific content, formulas, balance, active ability execution, and cross-domain policy remain owned by consuming games unless a later architecture decision explicitly moves a responsibility.
+Game-specific content, formulas, balance, prerequisites, rewards, active capability execution, combat, inventory/equipment policy, Tactical composition, and aggregate save ownership remain owned by consuming games unless a later controlled architecture decision explicitly moves a responsibility.
 
 ## Current status
 
-Sprint 01 incubation conventions are defined in `docs/architecture/incubation-conventions.md` and enforced where practical by repository architecture checks and tests.
+RPG v0.1 incubation is complete through RPG-I09.
 
-RPG-I01 adds advancement incubation under `src/advancement`: ordered game-defined rank/mastery progression without XP, global levels, role ownership, or a progression curve.
+The repository contains incubation evidence for:
 
-RPG-I02 adds roles/jobs incubation under `src/roles`: game-defined role ownership and active-role state without class tiers, mastery, skills, or Tactical behavior. Role mastery is pressure-tested through game-side composition with advancement rather than a source dependency.
+- advancement;
+- roles/jobs;
+- resources;
+- attributes;
+- specialization;
+- capability ownership;
+- loadout/equipment assignment.
 
-RPG-I03 adds resources incubation under `src/resources`: game-defined current/capacity state with deterministic invariant-preserving transitions and no hard-coded depletion meaning.
+No gameplay candidate has graduated to the stable package surface. `@drakeshard/rpg` remains private, the root gameplay export remains empty, and runtime dependencies remain zero.
 
-RPG-I04 adds attributes incubation under `src/attributes`: game-defined finite scalar base values with deterministic base-value transitions. Modifier algebra, derived formulas, caps, stacking, and balance policy remain consumer-owned.
+The package does not expose a universal RPG character, generic property/metadata bag, generic `Result<T>`, skill/effect/requirement engine, event bus, command bus, inventory system, or combat system.
 
-RPG-I05 adds specialization incubation under `src/specialization`: persistent game-defined selections with bounded positive ranks, without a graph, prerequisite DSL, branch/exclusivity engine, respec policy, or automatic rewards/capability grants.
-
-RPG-I06 adds capability-ownership incubation under `src/capabilities`: persistent ownership of game-defined capability references with deterministic grant/revoke transitions. Execution, requirements, temporary availability, grant-source tracking, and cross-module grant policy remain consumer-owned.
-
-RPG-I07 adds loadout/equipment-assignment incubation under `src/loadout`: persistent game-defined slot-to-equipment-reference assignment with deterministic assign/replace/clear transitions. Inventory, item catalogs, equip eligibility, cross-slot policy, and equipment effects remain consumer-owned.
-
-RPG-I08 pressure-tests every surviving RPG candidate together in a headless first-game composition fixture. The fixture preserves game-owned identity mapping, formulas, prerequisites, Tactical facts, combat/effect interpretation, and aggregate save ownership without adding RPG-internal, Tactical, Foundation, or runtime dependencies. This remains pre-production evidence because the first game repository does not yet exist.
-
-RPG-I09 extraction review defers stable admission for every gameplay candidate because no real production-game consumer exists yet. The candidate boundaries remain incubation evidence for production use; `@drakeshard/rpg` stays private, runtime dependencies remain zero, and the root/stable gameplay surface remains empty.
+Repository-level incubation conventions are defined in `docs/architecture/incubation-conventions.md`. Google Drive remains authoritative for RPG architecture and admission decisions.
 
 ## Dependency boundary
 
 Runtime dependencies remain zero. `@drakeshard/foundation`, Tactical packages, renderer/UI frameworks, and browser APIs are not admitted into RPG source by default.
 
-## Local verification
+Cross-library and title-policy composition belongs in the consuming game unless a later controlled architecture decision admits a narrower shared contract.
+
+## Quality and package guards
+
+Required local verification is:
 
 ```sh
 corepack enable
 pnpm install --frozen-lockfile
 pnpm verify
 ```
+
+`pnpm verify` covers formatting/lint, architecture boundaries, package/incubation invariants, strict source and test typechecking, unit tests, build, and generated build-artifact shape validation.
+
+The package guard protects private/incubation status, zero runtime dependencies, the absence of public package entry metadata, and the empty stable root export. Build-artifact validation ensures `dist` contains only the JavaScript/declaration output expected from `src`.
+
+Repository licensing is intentionally unresolved while the package remains private. A license must not be selected without an explicit controlled owner decision.
