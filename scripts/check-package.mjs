@@ -30,6 +30,14 @@ export function findPackageInvariantViolations({ root = process.cwd() } = {}) {
     violations.push('package.json: "@drakeshard/rpg" must remain private during incubation');
   }
 
+  if (
+    !Array.isArray(packageJson.files) ||
+    packageJson.files.length !== 1 ||
+    packageJson.files[0] !== "dist"
+  ) {
+    violations.push('package.json: "files" must remain exactly ["dist"] during incubation');
+  }
+
   for (const field of runtimeDependencyFields) {
     if (hasEntries(packageJson[field])) {
       const names = Object.keys(packageJson[field]).sort().join(", ");
