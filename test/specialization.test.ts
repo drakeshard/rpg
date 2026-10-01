@@ -58,7 +58,7 @@ describe("specialization definition validation", () => {
     });
 
     expect(
-      validateSpecializationDefinition({
+      validateSpecializationDefinition<string, string | number>({
         reference: "invalid-choices",
         choices: [
           { reference: Number.NaN, maxRank: 0 },
@@ -66,7 +66,7 @@ describe("specialization definition validation", () => {
           { reference: "repeat", maxRank: 2 },
           { reference: "fractional", maxRank: 1.5 },
         ],
-      } satisfies SpecializationDefinition),
+      }),
     ).toEqual({
       kind: "invalid",
       issues: [
