@@ -7,14 +7,7 @@
     "strict": true,
     "noEmit": true,
     "skipLibCheck": true,
-    "noFallthroughCasesInSwitch": true,
-    "baseUrl": ".",
-    "paths": {
-      "@drakeshard/foundation/time": [".foundation-src/packages/foundation/src/time/index.ts"],
-      "@drakeshard/foundation/random": [".foundation-src/packages/foundation/src/random/index.ts"],
-      "@drakeshard/foundation/input": [".foundation-src/packages/foundation/src/input/index.ts"],
-      "@drakeshard/foundation/input/browser": [".foundation-src/packages/foundation/src/input/browser/index.ts"]
-    }
+    "noFallthroughCasesInSwitch": true
   },
   "include": ["src/**/*.ts"]
 }
