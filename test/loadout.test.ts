@@ -122,12 +122,7 @@ describe("loadout state and transitions", () => {
     const state = { assignments: [] } as LoadoutState<string, number>;
 
     expect(
-      assignLoadoutEquipment(
-        definition as LoadoutDefinition<string>,
-        state,
-        "unknown",
-        1,
-      ),
+      assignLoadoutEquipment(definition as LoadoutDefinition<string>, state, "unknown", 1),
     ).toEqual({
       kind: "rejected",
       reason: "slot-not-defined",
