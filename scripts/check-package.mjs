@@ -45,12 +45,26 @@ export function findPackageInvariantViolations({ root = process.cwd() } = {}) {
     );
   }
 
-  for (const field of ["main", "module", "types", "typings"]) {
+  for (const field of ["main", "module", "types", "typings", "bin", "browser"]) {
     if (packageJson[field] !== undefined) {
       violations.push(
         `package.json: "${field}" must remain absent until a controlled public-surface admission decision`,
       );
     }
+  }
+
+  if (
+    !Array.isArray(packageJson.files) ||
+    packageJson.files.length !== 1 ||
+    packageJson.files[0] !== "dist"
+  ) {
+    violations.push('package.json: "files" must remain exactly ["dist"] during incubation');
+  }
+
+  if (packageJson.publishConfig !== undefined) {
+    violations.push(
+      'package.json: "publishConfig" must remain absent while package distribution is not admitted',
+    );
   }
 
   if (!fs.existsSync(rootIndexPath)) {
