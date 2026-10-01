@@ -38,7 +38,9 @@ describe("package/incubation invariant guard", () => {
   it("rejects a different shared-library license", () => {
     expect(
       findPackageInvariantViolations({ root: repositoryFixture({ license: "MIT" }) }),
-    ).toContain('package.json: "license" must be "Apache-2.0" under the shared-library default license policy');
+    ).toContain(
+      'package.json: "license" must be "Apache-2.0" under the shared-library default license policy',
+    );
   });
 
   it("rejects public-package admission metadata and stable gameplay exports", () => {
