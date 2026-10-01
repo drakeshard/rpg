@@ -308,7 +308,9 @@ describe("transition immutability and invariant preservation", () => {
       state: { resource: "mana", current: 6.5, capacity: 10 },
     });
     const resized =
-      decreased.kind === "changed" ? setResourceCapacity(definition, decreased.state, 4) : decreased;
+      decreased.kind === "changed"
+        ? setResourceCapacity(definition, decreased.state, 4)
+        : decreased;
     expect(resized).toEqual({
       kind: "changed",
       clamped: true,
