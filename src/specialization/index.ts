@@ -8,11 +8,11 @@ export {
   validateSpecializationDefinition,
 } from "./definitions.js";
 export {
-  increaseSpecializationChoiceRank,
   type InitializeSpecializationOutcome,
+  increaseSpecializationChoiceRank,
   initializeSpecialization,
-  selectSpecializationChoice,
   type SpecializationTransitionOutcome,
+  selectSpecializationChoice,
 } from "./operations.js";
 export {
   type SpecializationSelection,
