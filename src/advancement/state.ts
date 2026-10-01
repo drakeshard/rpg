@@ -1,7 +1,4 @@
-import type {
-  AdvancementReference,
-  AdvancementTrackDefinition,
-} from "./definitions.js";
+import type { AdvancementReference, AdvancementTrackDefinition } from "./definitions.js";
 import { validateAdvancementTrackDefinition } from "./definitions.js";
 
 export type AdvancementState<
