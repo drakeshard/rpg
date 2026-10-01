@@ -24,12 +24,10 @@ Canvas/isometric rendering, sprite animation, AI, combat geometry/formulas, enem
 
 ## Run locally
 
-The sample builds against a pinned Web Foundation source checkout so it can exercise the real current implementation without adding a runtime dependency to the RPG package.
+The sample consumes the exact published `@drakeshard/foundation@0.1.1` npm package. That exercises Foundation through its real external-consumer path while keeping the dependency isolated to this sample rather than the RPG package.
 
 ```bash
 cd examples/openfield
-git clone https://github.com/drakeshard/web-foundation.git .foundation-src
-git -C .foundation-src checkout 35465b52aed501c113cfde669774b07c3fd3640a
 npm install --no-package-lock
 npm run dev
 ```
@@ -61,7 +59,7 @@ Add `?stress=1` for the diagnostic scene with 50 enemies and roughly 500 world o
 - `src/rpg-player-resources.ts` composes RPG incubation resources into player HP/stamina.
 - `src/world.ts` uses Foundation deterministic RNG for authored world generation.
 - `src/ai.ts`, `src/combat.ts`, `src/rendering.ts`, `src/sprites.ts`, and `src/audio.ts` remain game-owned.
-- `vite.config.ts` aliases Foundation package subpaths to the pinned integration checkout.
+- `package.json` pins the published Foundation package at exactly `0.1.1`.
 
 ## GitHub Pages
 
