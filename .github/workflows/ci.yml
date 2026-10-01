@@ -55,3 +55,6 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      - name: Check build artifact shape
+        run: pnpm check:build
