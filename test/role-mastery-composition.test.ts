@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  type AdvancementTrackDefinition,
   advanceAdvancement,
   initializeAdvancement,
-  type AdvancementTrackDefinition,
 } from "../src/advancement/index.js";
 import {
   activateRole,
@@ -18,10 +18,7 @@ describe("game-side role mastery composition", () => {
     const jobs: RoleCatalogDefinition<JobReference> = {
       roles: ["Guardian", "Breaker"],
     };
-    const masteryByJob: Record<
-      JobReference,
-      AdvancementTrackDefinition<string, string>
-    > = {
+    const masteryByJob: Record<JobReference, AdvancementTrackDefinition<string, string>> = {
       Guardian: {
         reference: "guardian-mastery",
         ranks: ["initiated", "seasoned", "mastered"],
