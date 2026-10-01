@@ -20,9 +20,11 @@ optional lower-level infrastructure only when explicitly admitted
 
 RPG and Tactical are sibling domains. Consuming games compose them.
 
-## Initial package boundary
+## Current package boundary
 
-`@drakeshard/rpg` starts with zero runtime dependencies and no gameplay modules. Public modules are added only through issue-backed implementation after architecture admission and consumer pressure.
+RPG v0.1 incubation produced advancement, roles/jobs, resources, attributes, specialization, capability ownership, and loadout/equipment candidates under source subdirectories. They remain incubation-only: `@drakeshard/rpg` is private, runtime dependencies remain zero, package public-entry/export metadata is absent, and the stable/root gameplay export remains empty.
+
+Public gameplay surfaces are added only through issue-backed controlled admission after real consumer pressure. Repository package and build-shape guards make accidental admission or distributable-shape drift fail CI.
 
 ## Required boundaries
 
@@ -42,7 +44,7 @@ RPG may own reusable role-state, advancement, resource, attribute, specializatio
 
 Authoritative RPG state transitions must make ordering and external inputs explicit. Do not use uncontrolled wall-clock time, `Math.random()`, renderer state, or hidden global mutation in deterministic paths.
 
-The architecture check also rejects common hidden randomness, wall-clock, timer, async-scheduling, DOM/browser, and renderer-timing sources from `src/` before they can become authoritative implementation dependencies.
+The architecture check also rejects common hidden randomness, wall-clock, timer, async-scheduling, DOM/browser, and renderer-timing sources from `src/` before they can become authoritative implementation dependencies. Its regression suite proves both allowed ordinary RPG-relative imports and the prohibited cases.
 
 ## Admission rule
 

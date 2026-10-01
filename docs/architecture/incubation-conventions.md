@@ -109,7 +109,13 @@ RPG source remains renderer-, UI-, browser-, consuming-game-, and Tactical-indep
   composition until a relationship proves intrinsic and reusable.
 
 `scripts/check-architecture.mjs` enforces the subset of these rules that can be checked reliably by
-repository static analysis.
+repository static analysis and is regression-tested against both allowed imports and prohibited
+external, sibling-domain, hidden-randomness/time, scheduling, and browser cases.
+
+`scripts/check-package.mjs` separately protects current incubation/package invariants: private
+status, zero runtime dependencies, dist-only package contents, absence of public package entry/export
+metadata, and an empty stable root gameplay export. These checks are admission tripwires, not a
+substitute for the controlled architecture decision required to change those boundaries.
 
 ## Testing convention
 
@@ -120,9 +126,11 @@ Every admitted RPG mechanism must have isolated tests covering the parts that ap
 3. invalid/rejected transitions and invariants;
 4. deterministic repeatability from identical ordered inputs;
 5. ordering semantics when order affects the result;
-6. JSON serialization round-trip for persisted state;
-7. title-neutral fixtures first;
-8. current-consumer pressure-test fixtures after the title-neutral contract is proven.
+6. JSON serialization round-trip and representative persisted-state compatibility fixtures;
+7. immutability of input definitions/state and preservation of unaffected order/values;
+8. applicable numeric/reference boundary matrices without inventing title policy;
+9. title-neutral fixtures first;
+10. current-consumer pressure-test fixtures after the title-neutral contract is proven.
 
 Cross-module title policy and RPG/Tactical composition are tested in the consuming game rather than
 by adding sibling-library dependencies to RPG.

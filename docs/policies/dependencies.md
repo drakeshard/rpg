@@ -2,7 +2,7 @@
 
 ## Baseline
 
-Runtime dependencies start at zero.
+Runtime dependencies start at zero and currently remain zero. `scripts/check-package.mjs` fails CI if any runtime, optional-runtime, or peer dependency is introduced without first changing the controlled incubation boundary.
 
 ## Admission criteria
 
@@ -26,6 +26,7 @@ A dependency addition must document:
 - CI installs with `--frozen-lockfile`.
 - Dependencies with install scripts, binary downloads, or unusual lifecycle behavior require additional review.
 - Dependencies are not added solely to replace trivial local utilities.
+- `pnpm verify` runs the package/incubation invariant guard locally; GitHub Dependency Review remains a required PR gate.
 
 ## Cross-library dependencies
 
