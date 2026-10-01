@@ -35,11 +35,20 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Check formatting, lint, and architecture
-        run: pnpm check
+      - name: Check formatting and lint
+        run: pnpm check:format
 
-      - name: Typecheck
-        run: pnpm typecheck
+      - name: Check architecture boundaries
+        run: pnpm check:architecture
+
+      - name: Check package and incubation invariants
+        run: pnpm check:package
+
+      - name: Typecheck source
+        run: pnpm typecheck:src
+
+      - name: Typecheck tests
+        run: pnpm typecheck:test
 
       - name: Unit tests
         run: pnpm test
