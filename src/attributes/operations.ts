@@ -4,15 +4,9 @@ import {
   type AttributeReference,
   validateAttributeDefinition,
 } from "./definitions.js";
-import {
-  type AttributeState,
-  type AttributeStateIssue,
-  validateAttributeState,
-} from "./state.js";
+import { type AttributeState, type AttributeStateIssue, validateAttributeState } from "./state.js";
 
-export type InitializeAttributeOutcome<
-  Reference extends AttributeReference,
-> =
+export type InitializeAttributeOutcome<Reference extends AttributeReference> =
   | Readonly<{
       kind: "initialized";
       state: AttributeState<Reference>;
@@ -23,9 +17,7 @@ export type InitializeAttributeOutcome<
       issues: readonly AttributeDefinitionIssue[];
     }>;
 
-export type AttributeTransitionOutcome<
-  Reference extends AttributeReference,
-> =
+export type AttributeTransitionOutcome<Reference extends AttributeReference> =
   | Readonly<{
       kind: "changed";
       state: AttributeState<Reference>;
@@ -56,9 +48,7 @@ function validateTransitionState<Reference extends AttributeReference>(
   return null;
 }
 
-export function initializeAttribute<
-  Reference extends AttributeReference,
->(
+export function initializeAttribute<Reference extends AttributeReference>(
   definition: AttributeDefinition<Reference>,
 ): InitializeAttributeOutcome<Reference> {
   const validation = validateAttributeDefinition(definition);
@@ -79,9 +69,7 @@ export function initializeAttribute<
   };
 }
 
-export function setAttributeBase<
-  Reference extends AttributeReference,
->(
+export function setAttributeBase<Reference extends AttributeReference>(
   definition: AttributeDefinition<Reference>,
   state: AttributeState<Reference>,
   base: number,
@@ -103,9 +91,7 @@ export function setAttributeBase<
   };
 }
 
-export function adjustAttributeBase<
-  Reference extends AttributeReference,
->(
+export function adjustAttributeBase<Reference extends AttributeReference>(
   definition: AttributeDefinition<Reference>,
   state: AttributeState<Reference>,
   delta: number,
