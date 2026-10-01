@@ -27,7 +27,9 @@ export function findPackageInvariantViolations({ root = process.cwd() } = {}) {
   const packageJson = readJson(packagePath);
 
   if (packageJson.license !== "Apache-2.0") {
-    violations.push('package.json: "license" must be "Apache-2.0" under the shared-library default license policy');
+    violations.push(
+      'package.json: "license" must be "Apache-2.0" under the shared-library default license policy',
+    );
   }
 
   if (packageJson.private !== true) {
