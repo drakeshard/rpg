@@ -11,8 +11,8 @@ export {
   grantRole,
   type InitializeRolesOutcome,
   initializeRoles,
-  revokeRole,
   type RoleTransitionOutcome,
+  revokeRole,
 } from "./operations.js";
 export {
   type RolesState,
