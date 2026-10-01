@@ -1,12 +1,7 @@
-import type {
-  AttributeDefinition,
-  AttributeReference,
-} from "./definitions.js";
+import type { AttributeDefinition, AttributeReference } from "./definitions.js";
 import { validateAttributeDefinition } from "./definitions.js";
 
-export type AttributeState<
-  Reference extends AttributeReference = AttributeReference,
-> = Readonly<{
+export type AttributeState<Reference extends AttributeReference = AttributeReference> = Readonly<{
   attribute: Reference;
   base: number;
 }>;
@@ -20,9 +15,7 @@ export type AttributeStateValidation =
   | Readonly<{ kind: "valid" }>
   | Readonly<{ kind: "invalid"; issue: AttributeStateIssue }>;
 
-export function validateAttributeState<
-  Reference extends AttributeReference,
->(
+export function validateAttributeState<Reference extends AttributeReference>(
   definition: AttributeDefinition<Reference>,
   state: AttributeState<Reference>,
 ): AttributeStateValidation {
