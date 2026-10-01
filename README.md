@@ -11,9 +11,9 @@ Game-specific content, formulas, balance, active ability execution, and cross-do
 
 ## Current status
 
-Repository engineering baseline only. No RPG gameplay module is admitted yet.
+Sprint 01 incubation conventions are defined in `docs/architecture/incubation-conventions.md` and enforced where practical by repository architecture checks and tests. No RPG gameplay module is admitted yet.
 
-Initial domain implementation follows RPG-ARCH-001 after repository bootstrap is complete.
+RPG-I01 advancement is the next dependency-safe gameplay incubation issue after RPG-I00 is merged.
 
 ## Dependency boundary
 
