@@ -1,0 +1,4 @@
+{
+  "specialization": "discipline",
+  "selections": [{ "choice": "precision", "rank": 2 }, { "choice": "control", "rank": 1 }]
+}
