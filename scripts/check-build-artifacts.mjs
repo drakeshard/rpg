@@ -55,7 +55,7 @@ export function findBuildArtifactViolations({ root = process.cwd() } = {}) {
     if (
       file.includes("/test/") ||
       file.startsWith("test/") ||
-      file.endsWith(".ts") ||
+      (file.endsWith(".ts") && !file.endsWith(".d.ts")) ||
       file.endsWith(".tsx") ||
       file.endsWith(".md") ||
       file.endsWith(".json")
