@@ -1,9 +1,7 @@
 import type { RoleCatalogDefinition, RoleReference } from "./definitions.js";
 import { validateRoleCatalogDefinition } from "./definitions.js";
 
-export type RolesState<
-  Reference extends RoleReference = RoleReference,
-> = Readonly<{
+export type RolesState<Reference extends RoleReference = RoleReference> = Readonly<{
   owned: readonly Reference[];
   active: Reference | null;
 }>;
