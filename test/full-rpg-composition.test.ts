@@ -20,9 +20,9 @@ import {
   type LoadoutDefinition,
 } from "../src/loadout/index.js";
 import {
-  type ResourceDefinition,
   decreaseResource,
   initializeResource,
+  type ResourceDefinition,
 } from "../src/resources/index.js";
 import {
   activateRole,
@@ -32,8 +32,8 @@ import {
 } from "../src/roles/index.js";
 import {
   initializeSpecialization,
-  selectSpecializationChoice,
   type SpecializationDefinition,
+  selectSpecializationChoice,
 } from "../src/specialization/index.js";
 
 describe("full first-game RPG composition pressure test", () => {
@@ -66,10 +66,11 @@ describe("full first-game RPG composition pressure test", () => {
     reference: "power",
     initialBase: 5,
   };
-  const specialization: SpecializationDefinition<"arcanist-specialization", SpecializationChoice> = {
-    reference: "arcanist-specialization",
-    choices: [{ reference: "ember-path", maxRank: 1 }],
-  };
+  const specialization: SpecializationDefinition<"arcanist-specialization", SpecializationChoice> =
+    {
+      reference: "arcanist-specialization",
+      choices: [{ reference: "ember-path", maxRank: 1 }],
+    };
   const capabilities: CapabilityCatalogDefinition<Capability> = {
     capabilities: ["Fireball"],
   };
@@ -97,7 +98,8 @@ describe("full first-game RPG composition pressure test", () => {
     if (hpStart.kind !== "initialized") throw new Error("hp must initialize");
     if (manaStart.kind !== "initialized") throw new Error("mana must initialize");
     if (powerStart.kind !== "initialized") throw new Error("power must initialize");
-    if (specializationStart.kind !== "initialized") throw new Error("specialization must initialize");
+    if (specializationStart.kind !== "initialized")
+      throw new Error("specialization must initialize");
     if (capabilityStart.kind !== "initialized") throw new Error("capabilities must initialize");
     if (loadoutStart.kind !== "initialized") throw new Error("loadout must initialize");
 
@@ -110,8 +112,7 @@ describe("full first-game RPG composition pressure test", () => {
     const mastery = advanceAdvancement(arcanistMastery, masteryStart.state);
     if (mastery.kind !== "advanced") throw new Error("mastery advancement must succeed");
 
-    const canChooseEmber =
-      roleActive.state.active === "Arcanist" && mastery.state.rank === "adept";
+    const canChooseEmber = roleActive.state.active === "Arcanist" && mastery.state.rank === "adept";
     if (!canChooseEmber) throw new Error("game-owned specialization prerequisite must pass");
 
     const selected = selectSpecializationChoice(
@@ -140,12 +141,7 @@ describe("full first-game RPG composition pressure test", () => {
       inventory.includes(equipment) && equipmentSlot[equipment] === slot;
 
     if (!canEquip("Weapon", "staff-001")) throw new Error("game equip policy must pass");
-    const equipped = assignLoadoutEquipment(
-      loadout,
-      loadoutStart.state,
-      "Weapon",
-      "staff-001",
-    );
+    const equipped = assignLoadoutEquipment(loadout, loadoutStart.state, "Weapon", "staff-001");
     if (equipped.kind !== "changed") throw new Error("loadout assignment must succeed");
 
     const equipmentPowerBonus: Readonly<Record<Equipment, number>> = {
@@ -179,8 +175,7 @@ describe("full first-game RPG composition pressure test", () => {
     if (manaAfterCast.kind !== "changed") throw new Error("mana spend must succeed");
 
     const damage =
-      effectivePower(powerStart.state, equipped.state.assignments) +
-      tacticalFacts.elevationDelta;
+      effectivePower(powerStart.state, equipped.state.assignments) + tacticalFacts.elevationDelta;
 
     const hpAfterHit = decreaseResource(hp, hpStart.state, damage);
     if (hpAfterHit.kind !== "changed") throw new Error("damage interpretation must succeed");
