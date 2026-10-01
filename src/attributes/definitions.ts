@@ -1,11 +1,10 @@
 export type AttributeReference = string | number;
 
-export type AttributeDefinition<
-  Reference extends AttributeReference = AttributeReference,
-> = Readonly<{
-  reference: Reference;
-  initialBase: number;
-}>;
+export type AttributeDefinition<Reference extends AttributeReference = AttributeReference> =
+  Readonly<{
+    reference: Reference;
+    initialBase: number;
+  }>;
 
 export type AttributeDefinitionIssue =
   | Readonly<{ kind: "invalid-reference" }>
@@ -22,9 +21,7 @@ function isJsonSafeReference(reference: AttributeReference): boolean {
   return typeof reference === "string" || Number.isFinite(reference);
 }
 
-export function validateAttributeDefinition<
-  Reference extends AttributeReference,
->(
+export function validateAttributeDefinition<Reference extends AttributeReference>(
   definition: AttributeDefinition<Reference>,
 ): AttributeDefinitionValidation {
   const issues: AttributeDefinitionIssue[] = [];
