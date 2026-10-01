@@ -4,11 +4,7 @@ import {
   type RoleReference,
   validateRoleCatalogDefinition,
 } from "./definitions.js";
-import {
-  type RolesState,
-  type RolesStateIssue,
-  validateRolesState,
-} from "./state.js";
+import { type RolesState, type RolesStateIssue, validateRolesState } from "./state.js";
 
 export type InitializeRolesOutcome<Reference extends RoleReference> =
   | Readonly<{
