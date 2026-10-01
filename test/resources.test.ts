@@ -195,9 +195,7 @@ describe("resource state and transitions", () => {
   it("produces repeatable outcomes from identical explicit inputs", () => {
     const state = { resource: "resolve", current: 30, capacity: 50 } as const;
 
-    expect(increaseResource(definition, state, 7)).toEqual(
-      increaseResource(definition, state, 7),
-    );
+    expect(increaseResource(definition, state, 7)).toEqual(increaseResource(definition, state, 7));
     expect(state).toEqual({ resource: "resolve", current: 30, capacity: 50 });
   });
 
