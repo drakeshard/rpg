@@ -41,6 +41,12 @@ jobs:
         working-directory: examples/openfield
         run: npm install --no-package-lock
 
+      - name: Inspect installed Foundation package
+        working-directory: examples/openfield
+        run: |
+          cat node_modules/@drakeshard/foundation/package.json
+          find node_modules/@drakeshard/foundation -maxdepth 3 -type f | sort
+
       - name: Build sample
         working-directory: examples/openfield
         run: npm run build
