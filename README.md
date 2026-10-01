@@ -13,7 +13,11 @@ Game-specific content, formulas, balance, active ability execution, and cross-do
 
 Sprint 01 incubation conventions are defined in `docs/architecture/incubation-conventions.md` and enforced where practical by repository architecture checks and tests.
 
-RPG-I01 adds an advancement incubation candidate under `src/advancement`: ordered game-defined rank/mastery progression without XP, global levels, role ownership, or a progression curve. It remains an incubation surface pending later pressure testing and RPG-I09 extraction review.
+RPG-I01 adds advancement incubation under `src/advancement`: ordered game-defined rank/mastery progression without XP, global levels, role ownership, or a progression curve.
+
+RPG-I02 adds roles/jobs incubation under `src/roles`: game-defined role ownership and active-role state without class tiers, mastery, skills, or Tactical behavior. Role mastery is pressure-tested through game-side composition with advancement rather than a source dependency.
+
+Both remain incubation surfaces pending later pressure testing and RPG-I09 extraction review.
 
 ## Dependency boundary
 
