@@ -64,7 +64,7 @@ for (const file of walk(sourceRoot)) {
 
 if (violations.length > 0) {
   console.error("Architecture boundary violations:");
-  for (const violation of violations) console.error("- " + violation);
+  for (const violation of violations) console.error(`- ${violation}`);
   process.exit(1);
 }
 
