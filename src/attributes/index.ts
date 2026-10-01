@@ -6,8 +6,8 @@ export {
   validateAttributeDefinition,
 } from "./definitions.js";
 export {
-  adjustAttributeBase,
   type AttributeTransitionOutcome,
+  adjustAttributeBase,
   type InitializeAttributeOutcome,
   initializeAttribute,
   setAttributeBase,
