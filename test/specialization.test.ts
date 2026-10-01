@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   increaseSpecializationChoiceRank,
   initializeSpecialization,
-  selectSpecializationChoice,
   type SpecializationDefinition,
   type SpecializationState,
+  selectSpecializationChoice,
   validateSpecializationDefinition,
   validateSpecializationState,
 } from "../src/specialization/index.js";
@@ -177,26 +177,20 @@ describe("specialization state and transitions", () => {
 
   it("validates specialization association, defined unique choices, and bounded integer ranks", () => {
     expect(
-      validateSpecializationState(
-        definition as SpecializationDefinition<string, string>,
-        {
-          specialization: "other",
-          selections: [],
-        },
-      ),
+      validateSpecializationState(definition as SpecializationDefinition<string, string>, {
+        specialization: "other",
+        selections: [],
+      }),
     ).toEqual({
       kind: "invalid",
       issue: { kind: "specialization-reference-mismatch" },
     });
 
     expect(
-      validateSpecializationState(
-        definition as SpecializationDefinition<string, string>,
-        {
-          specialization: "discipline",
-          selections: [{ choice: "unknown", rank: 1 }],
-        },
-      ),
+      validateSpecializationState(definition as SpecializationDefinition<string, string>, {
+        specialization: "discipline",
+        selections: [{ choice: "unknown", rank: 1 }],
+      }),
     ).toEqual({
       kind: "invalid",
       issue: { kind: "selection-not-defined", choice: "unknown" },
@@ -317,7 +311,8 @@ describe("first-game specialization pressure test", () => {
       state: SpecializationState<"arcanist-specialization", Choice>,
       choice: Choice,
       rank: number,
-    ) => state.selections.some((selection) => selection.choice === choice && selection.rank >= rank);
+    ) =>
+      state.selections.some((selection) => selection.choice === choice && selection.rank >= rank);
 
     const canSelect = (choice: Choice, context: GameContext): boolean => {
       if (context.activeJob !== "Arcanist") return false;
@@ -367,10 +362,7 @@ describe("first-game specialization pressure test", () => {
     const pyre = selectSpecializationChoice(definition, ember.state, "pyre-mastery");
     if (pyre.kind !== "changed") throw new Error("pyre mastery must be selectable");
 
-    const ownedCapabilities = [
-      ...rewards["ember-path"],
-      ...rewards["pyre-mastery"],
-    ];
+    const ownedCapabilities = [...rewards["ember-path"], ...rewards["pyre-mastery"]];
 
     expect(pyre.state).toEqual({
       specialization: "arcanist-specialization",
