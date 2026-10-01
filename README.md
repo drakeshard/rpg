@@ -25,6 +25,8 @@ RPG-I05 adds specialization incubation under `src/specialization`: persistent ga
 
 RPG-I06 adds capability-ownership incubation under `src/capabilities`: persistent ownership of game-defined capability references with deterministic grant/revoke transitions. Execution, requirements, temporary availability, grant-source tracking, and cross-module grant policy remain consumer-owned.
 
+RPG-I07 adds loadout/equipment-assignment incubation under `src/loadout`: persistent game-defined slot-to-equipment-reference assignment with deterministic assign/replace/clear transitions. Inventory, item catalogs, equip eligibility, cross-slot policy, and equipment effects remain consumer-owned.
+
 All remain incubation surfaces pending later pressure testing and RPG-I09 extraction review.
 
 ## Dependency boundary
