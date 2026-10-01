@@ -109,7 +109,8 @@ RPG source remains renderer-, UI-, browser-, consuming-game-, and Tactical-indep
   composition until a relationship proves intrinsic and reusable.
 
 `scripts/check-architecture.mjs` enforces the subset of these rules that can be checked reliably by
-repository static analysis.
+repository static analysis. `scripts/check-package.mjs` separately protects the current private/incubation
+package state, including the empty stable root export and absence of public package entry metadata.
 
 ## Testing convention
 
@@ -126,6 +127,9 @@ Every admitted RPG mechanism must have isolated tests covering the parts that ap
 
 Cross-module title policy and RPG/Tactical composition are tested in the consuming game rather than
 by adding sibling-library dependencies to RPG.
+
+`pnpm verify` also builds the package and checks generated `dist` shape so tests, docs, raw source, and
+other unintended artifacts cannot silently become distributable output.
 
 ## Explicit non-goals
 
