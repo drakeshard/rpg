@@ -1,11 +1,10 @@
 import type { CapabilityCatalogDefinition, CapabilityReference } from "./definitions.js";
 import { validateCapabilityCatalogDefinition } from "./definitions.js";
 
-export type CapabilityOwnershipState<
-  Reference extends CapabilityReference = CapabilityReference,
-> = Readonly<{
-  owned: readonly Reference[];
-}>;
+export type CapabilityOwnershipState<Reference extends CapabilityReference = CapabilityReference> =
+  Readonly<{
+    owned: readonly Reference[];
+  }>;
 
 export type CapabilityOwnershipStateIssue =
   | Readonly<{ kind: "invalid-definition" }>
