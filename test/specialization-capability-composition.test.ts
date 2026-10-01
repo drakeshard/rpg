@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   type CapabilityCatalogDefinition,
+  type CapabilityOwnershipState,
   grantCapability,
   initializeCapabilityOwnership,
 } from "../src/capabilities/index.js";
