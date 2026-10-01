@@ -85,11 +85,7 @@ describe("capability ownership state and transitions", () => {
     });
 
     expect(
-      grantCapability(
-        definition as CapabilityCatalogDefinition<string>,
-        state,
-        "unknown",
-      ),
+      grantCapability(definition as CapabilityCatalogDefinition<string>, state, "unknown"),
     ).toEqual({
       kind: "rejected",
       reason: "capability-not-defined",
