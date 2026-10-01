@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
-  advanceAdvancement,
-  initializeAdvancement,
   type AdvancementState,
   type AdvancementTrackDefinition,
+  advanceAdvancement,
+  initializeAdvancement,
   validateAdvancementState,
   validateAdvancementTrackDefinition,
 } from "../src/advancement/index.js";
@@ -143,10 +143,7 @@ describe("first-game job mastery pressure test", () => {
   it("keeps job ownership outside advancement while tracking mastery per job", () => {
     type JobReference = "Guardian" | "Breaker";
 
-    const masteryByJob: Record<
-      JobReference,
-      AdvancementTrackDefinition<string, string>
-    > = {
+    const masteryByJob: Record<JobReference, AdvancementTrackDefinition<string, string>> = {
       Guardian: {
         reference: "guardian-mastery",
         ranks: ["initiated", "seasoned", "mastered"],
