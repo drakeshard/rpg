@@ -4,6 +4,8 @@
 
 Implementation-adjacent baseline for the RPG repository. Controlled RPG architecture and ownership decisions are maintained in RPG-ARCH-001 in Google Drive.
 
+Repository implementation conventions are defined in `incubation-conventions.md`. They operationalize RPG-ARCH-001 for issue-backed implementation without admitting gameplay modules by themselves.
+
 ## Layering
 
 ```text
@@ -39,6 +41,8 @@ RPG may own reusable role-state, advancement, resource, attribute, specializatio
 ## Determinism
 
 Authoritative RPG state transitions must make ordering and external inputs explicit. Do not use uncontrolled wall-clock time, `Math.random()`, renderer state, or hidden global mutation in deterministic paths.
+
+The architecture check also rejects common hidden randomness, wall-clock, timer, async-scheduling, DOM/browser, and renderer-timing sources from `src/` before they can become authoritative implementation dependencies.
 
 ## Admission rule
 
