@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
-  adjustAttributeBase,
   type AttributeDefinition,
   type AttributeState,
+  adjustAttributeBase,
   initializeAttribute,
   setAttributeBase,
   validateAttributeDefinition,
@@ -36,10 +36,7 @@ describe("attribute definition validation", () => {
       }),
     ).toEqual({
       kind: "invalid",
-      issues: [
-        { kind: "invalid-reference" },
-        { kind: "invalid-initial-base" },
-      ],
+      issues: [{ kind: "invalid-reference" }, { kind: "invalid-initial-base" }],
     });
   });
 });
