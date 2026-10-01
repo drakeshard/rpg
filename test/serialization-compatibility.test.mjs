@@ -38,10 +38,7 @@ describe("persisted-state compatibility fixtures", () => {
     const state = fixture("resources");
     expect(state).toEqual({ resource: "mana", current: 35.5, capacity: 50 });
     expect(
-      validateResourceState(
-        { reference: "mana", initialCurrent: 50, initialCapacity: 50 },
-        state,
-      ),
+      validateResourceState({ reference: "mana", initialCurrent: 50, initialCapacity: 50 }, state),
     ).toEqual({ kind: "valid" });
   });
 
@@ -79,9 +76,9 @@ describe("persisted-state compatibility fixtures", () => {
   it("keeps capability ownership JSON-compatible and valid", () => {
     const state = fixture("capabilities");
     expect(state).toEqual({ owned: ["dash", "guard"] });
-    expect(
-      validateCapabilityOwnershipState({ capabilities: ["dash", "guard"] }, state),
-    ).toEqual({ kind: "valid" });
+    expect(validateCapabilityOwnershipState({ capabilities: ["dash", "guard"] }, state)).toEqual({
+      kind: "valid",
+    });
   });
 
   it("keeps loadout state JSON-compatible and valid", () => {
