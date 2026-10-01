@@ -6,7 +6,7 @@ Openfield is a browser-first 2.5D action-game sample adapted from the user-provi
 
 ### Drakeshard Web Foundation
 
-The sample consumes Foundation source at a pinned known-good commit through the approved public contracts:
+The sample consumes the exact published `@drakeshard/foundation@0.1.2` npm artifact through the approved public contracts:
 
 - `@drakeshard/foundation/time` — `FixedStepDriver` drives authoritative 60 Hz simulation steps while rendering remains `requestAnimationFrame`-driven.
 - `@drakeshard/foundation/random` — `DeterministicRng` replaces the prototype's game/world RNG helpers.
@@ -24,7 +24,7 @@ Canvas/isometric rendering, sprite animation, AI, combat geometry/formulas, enem
 
 ## Run locally
 
-The sample consumes the exact published `@drakeshard/foundation@0.1.1` npm package. That exercises Foundation through its real external-consumer path while keeping the dependency isolated to this sample rather than the RPG package.
+The sample consumes the exact published `@drakeshard/foundation@0.1.2` npm package. That exercises Foundation through its real external-consumer path while keeping the dependency isolated to this sample rather than the RPG package.
 
 ```bash
 cd examples/openfield
@@ -59,7 +59,7 @@ Add `?stress=1` for the diagnostic scene with 50 enemies and roughly 500 world o
 - `src/rpg-player-resources.ts` composes RPG incubation resources into player HP/stamina.
 - `src/world.ts` uses Foundation deterministic RNG for authored world generation.
 - `src/ai.ts`, `src/combat.ts`, `src/rendering.ts`, `src/sprites.ts`, and `src/audio.ts` remain game-owned.
-- `package.json` pins the published Foundation package at exactly `0.1.1`.
+- `package.json` pins the published Foundation package at exactly `0.1.2`.
 
 ## GitHub Pages
 
