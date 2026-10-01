@@ -1,0 +1,6 @@
+{
+  "assignments": [
+    { "slot": "weapon", "equipment": "iron-sword" },
+    { "slot": "armor", "equipment": "leather-coat" }
+  ]
+}
