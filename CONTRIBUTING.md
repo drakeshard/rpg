@@ -32,3 +32,7 @@ New dependencies must comply with `docs/policies/dependencies.md`. Runtime depen
 ## Incubation and public-surface changes
 
 The seven current gameplay modules are incubation-only. Do not make the root gameplay export non-empty, add package `exports`/entry metadata, expose stable gameplay subpaths, remove `private: true`, or broaden package contents without an explicit controlled admission decision. `scripts/check-package.mjs` is an executable tripwire for the current state; do not weaken it merely to make a change pass CI.
+
+## License
+
+Drakeshard public shared-library repositories use Apache-2.0 by default unless controlled shared-library governance records an explicit exception. Do not change the repository license ad hoc; license exceptions require an owner-approved governance decision.

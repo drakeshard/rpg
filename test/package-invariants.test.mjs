@@ -14,6 +14,7 @@ function repositoryFixture(packageJson = {}, rootSource = "export {};\n") {
     path.join(root, "package.json"),
     JSON.stringify({
       name: "@drakeshard/rpg",
+      license: "Apache-2.0",
       private: true,
       files: ["dist"],
       ...packageJson,
@@ -32,6 +33,14 @@ afterEach(() => {
 describe("package/incubation invariant guard", () => {
   it("accepts the private dist-only package with an empty stable root", () => {
     expect(findPackageInvariantViolations({ root: repositoryFixture() })).toEqual([]);
+  });
+
+  it("rejects a different shared-library license", () => {
+    expect(
+      findPackageInvariantViolations({ root: repositoryFixture({ license: "MIT" }) }),
+    ).toContain(
+      'package.json: "license" must be "Apache-2.0" under the shared-library default license policy',
+    );
   });
 
   it("rejects public-package admission metadata and stable gameplay exports", () => {

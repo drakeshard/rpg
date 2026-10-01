@@ -37,7 +37,7 @@ Runtime dependencies remain zero and are protected by an executable package inva
 
 The package remains private. Package exports, stable gameplay subpaths, and a non-empty root gameplay export require a controlled admission decision; the current root/stable gameplay surface is intentionally empty.
 
-No RPG repository/package license has been approved in controlled documentation. No `LICENSE` is added while that owner decision remains unresolved; private status must not be treated as permission to distribute.
+This repository uses the shared Drakeshard public-library default license: Apache License 2.0 (`Apache-2.0`). The repository includes a `LICENSE` file and `package.json` records the SPDX identifier. Package privacy and gameplay-surface admission remain separate decisions: `private: true` still prevents package publication until a later controlled distribution decision.
 
 ## Local verification
 
