@@ -6,8 +6,8 @@ import {
   initializeCapabilityOwnership,
 } from "../src/capabilities/index.js";
 import {
-  type SpecializationDefinition,
   initializeSpecialization,
+  type SpecializationDefinition,
   selectSpecializationChoice,
 } from "../src/specialization/index.js";
 
@@ -68,12 +68,14 @@ describe("game-side specialization capability composition", () => {
     const granted = grantCapability(capabilities, start.state, "Fireball");
     if (granted.kind !== "changed") throw new Error("grant must succeed");
 
-    const canExecuteFireball = (context: Readonly<{
-      owned: CapabilityOwnershipState<Capability>;
-      mana: number;
-      silenced: boolean;
-      tacticalTargetInRange: boolean;
-    }>) =>
+    const canExecuteFireball = (
+      context: Readonly<{
+        owned: CapabilityOwnershipState<Capability>;
+        mana: number;
+        silenced: boolean;
+        tacticalTargetInRange: boolean;
+      }>,
+    ) =>
       context.owned.owned.includes("Fireball") &&
       context.mana >= 5 &&
       !context.silenced &&
