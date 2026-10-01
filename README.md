@@ -23,6 +23,8 @@ RPG-I04 adds attributes incubation under `src/attributes`: game-defined finite s
 
 RPG-I05 adds specialization incubation under `src/specialization`: persistent game-defined selections with bounded positive ranks, without a graph, prerequisite DSL, branch/exclusivity engine, respec policy, or automatic rewards/capability grants.
 
+RPG-I06 adds capability-ownership incubation under `src/capabilities`: persistent ownership of game-defined capability references with deterministic grant/revoke transitions. Execution, requirements, temporary availability, grant-source tracking, and cross-module grant policy remain consumer-owned.
+
 All remain incubation surfaces pending later pressure testing and RPG-I09 extraction review.
 
 ## Dependency boundary
