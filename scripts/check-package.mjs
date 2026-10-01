@@ -26,6 +26,10 @@ export function findPackageInvariantViolations({ root = process.cwd() } = {}) {
   const rootIndexPath = path.join(root, "src", "index.ts");
   const packageJson = readJson(packagePath);
 
+  if (packageJson.license !== "Apache-2.0") {
+    violations.push('package.json: "license" must be "Apache-2.0" under the shared-library default license policy');
+  }
+
   if (packageJson.private !== true) {
     violations.push('package.json: "@drakeshard/rpg" must remain private during incubation');
   }
