@@ -68,7 +68,9 @@ describe("package/incubation invariant guard", () => {
     expect(findPackageInvariantViolations({ root })).toEqual(
       expect.arrayContaining([
         expect.stringContaining('runtime dependency field "dependencies" must remain empty'),
-        expect.stringContaining('runtime dependency field "optionalDependencies" must remain empty'),
+        expect.stringContaining(
+          'runtime dependency field "optionalDependencies" must remain empty',
+        ),
         expect.stringContaining('runtime dependency field "peerDependencies" must remain empty'),
       ]),
     );
