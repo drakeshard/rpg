@@ -1,8 +1,6 @@
 export type ResourceReference = string | number;
 
-export type ResourceDefinition<
-  Reference extends ResourceReference = ResourceReference,
-> = Readonly<{
+export type ResourceDefinition<Reference extends ResourceReference = ResourceReference> = Readonly<{
   reference: Reference;
   initialCurrent: number;
   initialCapacity: number;
@@ -25,9 +23,7 @@ function isJsonSafeReference(reference: ResourceReference): boolean {
   return typeof reference === "string" || Number.isFinite(reference);
 }
 
-export function validateResourceDefinition<
-  Reference extends ResourceReference,
->(
+export function validateResourceDefinition<Reference extends ResourceReference>(
   definition: ResourceDefinition<Reference>,
 ): ResourceDefinitionValidation {
   const issues: ResourceDefinitionIssue[] = [];
