@@ -29,7 +29,7 @@ RPG-I07 adds loadout/equipment-assignment incubation under `src/loadout`: persis
 
 RPG-I08 pressure-tests every surviving RPG candidate together in a headless first-game composition fixture. The fixture preserves game-owned identity mapping, formulas, prerequisites, Tactical facts, combat/effect interpretation, and aggregate save ownership without adding RPG-internal, Tactical, Foundation, or runtime dependencies. This remains pre-production evidence because the first game repository does not yet exist.
 
-All remain incubation surfaces pending RPG-I09 extraction review.
+RPG-I09 extraction review defers stable admission for every gameplay candidate because no real production-game consumer exists yet. The candidate boundaries remain incubation evidence for production use; `@drakeshard/rpg` stays private, runtime dependencies remain zero, and the root/stable gameplay surface remains empty.
 
 ## Dependency boundary
 
