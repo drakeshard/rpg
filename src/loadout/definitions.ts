@@ -1,12 +1,13 @@
 export type LoadoutSlotReference = string | number;
 
-export type LoadoutDefinition<
-  SlotReference extends LoadoutSlotReference = LoadoutSlotReference,
-> = Readonly<{
-  slots: readonly SlotReference[];
-}>;
+export type LoadoutDefinition<SlotReference extends LoadoutSlotReference = LoadoutSlotReference> =
+  Readonly<{
+    slots: readonly SlotReference[];
+  }>;
 
-export type LoadoutDefinitionIssue<SlotReference extends LoadoutSlotReference = LoadoutSlotReference> =
+export type LoadoutDefinitionIssue<
+  SlotReference extends LoadoutSlotReference = LoadoutSlotReference,
+> =
   | Readonly<{ kind: "empty-slots" }>
   | Readonly<{ kind: "invalid-slot-reference"; slot: SlotReference }>
   | Readonly<{ kind: "duplicate-slot-reference"; slot: SlotReference }>;
