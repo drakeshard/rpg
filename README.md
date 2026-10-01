@@ -11,7 +11,7 @@ Game-specific content, formulas, balance, active ability execution, and cross-do
 
 ## Current status
 
-Sprint 01 incubation conventions are defined in `docs/architecture/incubation-conventions.md` and enforced where practical by repository architecture checks and tests.
+RPG v0.1 incubation is complete through RPG-I09. The seven gameplay candidates remain incubation-only evidence: none is admitted to the stable/root public gameplay surface. Incubation conventions are defined in `docs/architecture/incubation-conventions.md` and enforced by repository architecture, package/admission, typechecking, contract, serialization, and build-shape checks.
 
 RPG-I01 adds advancement incubation under `src/advancement`: ordered game-defined rank/mastery progression without XP, global levels, role ownership, or a progression curve.
 
@@ -33,7 +33,11 @@ RPG-I09 extraction review defers stable admission for every gameplay candidate b
 
 ## Dependency boundary
 
-Runtime dependencies remain zero. `@drakeshard/foundation`, Tactical packages, renderer/UI frameworks, and browser APIs are not admitted into RPG source by default.
+Runtime dependencies remain zero and are protected by an executable package invariant guard. `@drakeshard/foundation`, Tactical packages, renderer/UI frameworks, and browser APIs are not admitted into RPG source by default.
+
+The package remains private. Package exports, stable gameplay subpaths, and a non-empty root gameplay export require a controlled admission decision; the current root/stable gameplay surface is intentionally empty.
+
+No RPG repository/package license has been approved in controlled documentation. No `LICENSE` is added while that owner decision remains unresolved; private status must not be treated as permission to distribute.
 
 ## Local verification
 
@@ -42,3 +46,5 @@ corepack enable
 pnpm install --frozen-lockfile
 pnpm verify
 ```
+
+`pnpm verify` is the local deterministic equivalent of Quality CI: formatting/lint, architecture boundaries, package/incubation invariants, source and test typechecking, unit tests, build, and build-artifact shape validation. Dependency Review remains a GitHub PR gate.
