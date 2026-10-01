@@ -17,7 +17,9 @@ RPG-I01 adds advancement incubation under `src/advancement`: ordered game-define
 
 RPG-I02 adds roles/jobs incubation under `src/roles`: game-defined role ownership and active-role state without class tiers, mastery, skills, or Tactical behavior. Role mastery is pressure-tested through game-side composition with advancement rather than a source dependency.
 
-Both remain incubation surfaces pending later pressure testing and RPG-I09 extraction review.
+RPG-I03 adds resources incubation under `src/resources`: game-defined current/capacity state with deterministic invariant-preserving transitions and no hard-coded depletion meaning.
+
+All remain incubation surfaces pending later pressure testing and RPG-I09 extraction review.
 
 ## Dependency boundary
 
