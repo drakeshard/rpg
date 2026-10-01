@@ -4,9 +4,9 @@ import {
   deactivateRole,
   grantRole,
   initializeRoles,
-  revokeRole,
   type RoleCatalogDefinition,
   type RolesState,
+  revokeRole,
   validateRoleCatalogDefinition,
   validateRolesState,
 } from "../src/roles/index.js";
