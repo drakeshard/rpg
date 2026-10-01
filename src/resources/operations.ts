@@ -4,11 +4,7 @@ import {
   type ResourceReference,
   validateResourceDefinition,
 } from "./definitions.js";
-import {
-  type ResourceState,
-  type ResourceStateIssue,
-  validateResourceState,
-} from "./state.js";
+import { type ResourceState, type ResourceStateIssue, validateResourceState } from "./state.js";
 
 export type InitializeResourceOutcome<Reference extends ResourceReference> =
   | Readonly<{
