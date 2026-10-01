@@ -1,9 +1,7 @@
 import type { ResourceDefinition, ResourceReference } from "./definitions.js";
 import { validateResourceDefinition } from "./definitions.js";
 
-export type ResourceState<
-  Reference extends ResourceReference = ResourceReference,
-> = Readonly<{
+export type ResourceState<Reference extends ResourceReference = ResourceReference> = Readonly<{
   resource: Reference;
   current: number;
   capacity: number;
@@ -20,9 +18,7 @@ export type ResourceStateValidation =
   | Readonly<{ kind: "valid" }>
   | Readonly<{ kind: "invalid"; issue: ResourceStateIssue }>;
 
-export function validateResourceState<
-  Reference extends ResourceReference,
->(
+export function validateResourceState<Reference extends ResourceReference>(
   definition: ResourceDefinition<Reference>,
   state: ResourceState<Reference>,
 ): ResourceStateValidation {
