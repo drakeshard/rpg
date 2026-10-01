@@ -11,13 +11,13 @@ Game-specific content, formulas, balance, active ability execution, and cross-do
 
 ## Current status
 
-Sprint 01 incubation conventions are defined in `docs/architecture/incubation-conventions.md` and enforced where practical by repository architecture checks and tests. No RPG gameplay module is admitted yet.
+Sprint 01 incubation conventions are defined in `docs/architecture/incubation-conventions.md` and enforced where practical by repository architecture checks and tests.
 
-RPG-I01 advancement is the next dependency-safe gameplay incubation issue after RPG-I00 is merged.
+RPG-I01 adds an advancement incubation candidate under `src/advancement`: ordered game-defined rank/mastery progression without XP, global levels, role ownership, or a progression curve. It remains an incubation surface pending later pressure testing and RPG-I09 extraction review.
 
 ## Dependency boundary
 
-Runtime dependencies start at zero. `@drakeshard/foundation`, Tactical packages, renderer/UI frameworks, and browser APIs are not admitted into RPG source by default.
+Runtime dependencies remain zero. `@drakeshard/foundation`, Tactical packages, renderer/UI frameworks, and browser APIs are not admitted into RPG source by default.
 
 ## Local verification
 
