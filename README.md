@@ -21,6 +21,8 @@ RPG-I03 adds resources incubation under `src/resources`: game-defined current/ca
 
 RPG-I04 adds attributes incubation under `src/attributes`: game-defined finite scalar base values with deterministic base-value transitions. Modifier algebra, derived formulas, caps, stacking, and balance policy remain consumer-owned.
 
+RPG-I05 adds specialization incubation under `src/specialization`: persistent game-defined selections with bounded positive ranks, without a graph, prerequisite DSL, branch/exclusivity engine, respec policy, or automatic rewards/capability grants.
+
 All remain incubation surfaces pending later pressure testing and RPG-I09 extraction review.
 
 ## Dependency boundary
