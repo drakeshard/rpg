@@ -30,12 +30,7 @@ describe("first-game loadout composition pressure test", () => {
     expect(canEquip("Weapon", "sword-001")).toBe(true);
     expect(canEquip("Accessory", "ring-001")).toBe(false);
 
-    const equipped = assignLoadoutEquipment(
-      definition,
-      initialized.state,
-      "Weapon",
-      "sword-001",
-    );
+    const equipped = assignLoadoutEquipment(definition, initialized.state, "Weapon", "sword-001");
     expect(equipped).toEqual({
       kind: "changed",
       state: {
