@@ -27,7 +27,9 @@ RPG-I06 adds capability-ownership incubation under `src/capabilities`: persisten
 
 RPG-I07 adds loadout/equipment-assignment incubation under `src/loadout`: persistent game-defined slot-to-equipment-reference assignment with deterministic assign/replace/clear transitions. Inventory, item catalogs, equip eligibility, cross-slot policy, and equipment effects remain consumer-owned.
 
-All remain incubation surfaces pending later pressure testing and RPG-I09 extraction review.
+RPG-I08 pressure-tests every surviving RPG candidate together in a headless first-game composition fixture. The fixture preserves game-owned identity mapping, formulas, prerequisites, Tactical facts, combat/effect interpretation, and aggregate save ownership without adding RPG-internal, Tactical, Foundation, or runtime dependencies. This remains pre-production evidence because the first game repository does not yet exist.
+
+All remain incubation surfaces pending RPG-I09 extraction review.
 
 ## Dependency boundary
 
