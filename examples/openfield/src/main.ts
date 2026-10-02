@@ -105,6 +105,7 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
   let footstepDistance = 0;
   let dashTrailTimer = 0;
   let winDelay = 0;
+  let attackHitResolved = true;
 
   const range = (min: number, max: number) =>
     min + (max - min) * gameplayRng.nextFloat01();
@@ -227,6 +228,7 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
     player.deathTimer = 0;
     player.attackCooldown = 0;
     player.attackTimer = 0;
+    attackHitResolved = true;
     player.dashCooldown = 0;
     player.dashTimer = 0;
     player.invuln = 0;
@@ -284,14 +286,32 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
     if (!running || player.hp <= 0 || player.attackCooldown > 0) return;
     player.attackCooldown = 0.47;
     player.attackTimer = 0.34;
+    attackHitResolved = false;
     audio.play("swing");
+  }
+
+  function resolveAttackContact(): void {
+    if (attackHitResolved || player.attackTimer <= 0) return;
+    const phase = 1 - player.attackTimer / 0.34;
+    if (phase < 0.36) return;
+    attackHitResolved = true;
+
+    let hitCount = 0;
     for (const enemy of enemies) {
       if (enemy.dead || !inAttackArc(player, enemy, 105, 0.08)) continue;
+      hitCount++;
       damageEnemy(enemy, 32);
       const dx = enemy.x - player.x;
       const dy = enemy.y - player.y;
       const distance = Math.hypot(dx, dy) || 1;
       moveEntity(enemy, dx / distance * 22, dy / distance * 22);
+      burst(enemy.x, enemy.y, "#fff0bd", 4, 125);
+    }
+
+    if (hitCount > 0) {
+      player.vx += player.facingX * 34;
+      player.vy += player.facingY * 34;
+      visual.shake = Math.max(visual.shake, hitCount > 1 ? 3 : 2.3);
     }
   }
 
@@ -402,6 +422,7 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
     player.hitFlash = Math.max(0, player.hitFlash - dt);
 
     if (actions.attack) attack();
+    resolveAttackContact();
     if (actions.dash) dash();
     if (actions.interact) interact();
     if (actions.potion) usePotion();
