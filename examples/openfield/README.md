@@ -74,3 +74,35 @@ The surrounding sample uses a procedural dark-fantasy presentation layer: a comp
 ## Current limits
 
 Production sprite artwork has not been authored. Enemy navigation still uses simple steering and can get caught around dense obstacles. Persistent save/load is intentionally not added in this first integration pass; that remains a useful later Foundation storage pressure test.
+
+
+## Progression pressure test
+
+Openfield now exercises the RPG incubation modules together in one running game:
+
+- `advancement` tracks Warden rank while Openfield owns XP thresholds and rewards;
+- `attributes` tracks strength, agility, and vitality bases while Openfield owns derived combat formulas;
+- `roles` tracks the active Warden role;
+- `specialization` tracks ranked Blade Mastery, Wind Discipline, and Iron Heart choices;
+- `capabilities` tracks ownership of Crescent Arc, Aegis Burst, and Wind Step while Openfield owns their execution/effects;
+- `loadout` tracks weapon/armor/charm references while Openfield owns the item catalog and stats;
+- `resources` tracks health/stamina, including capacity changes from progression/equipment.
+
+The sample intentionally keeps quests, XP curves, skill prerequisites/effects, item definitions, drop policy, combat formulas, spawning, AI, and balancing game-owned. Their presence is evidence for evaluating RPG boundaries; it is not automatic justification for new shared APIs.
+
+## World and lifetime bounds
+
+The map now spans Greywood Outskirts, Fenwatch Mire, and the Broken Beacon Ruins. A deterministic spawn director maintains local populations around the current area.
+
+Long-session entity growth is explicitly bounded:
+
+- at most 26 allocated enemies;
+- target live population starts at 12 and scales modestly with Warden rank;
+- dead enemies are removed after their death presentation finishes;
+- at most 48 world loot entries;
+- uncollected loot expires after 45 seconds;
+- particle creation remains capped at 280;
+- damage-number history is capped at 64;
+- dash afterimages remain capped by the existing 8-entry limit.
+
+These are title-owned runtime policies rather than RPG-library behavior.
