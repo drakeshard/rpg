@@ -137,10 +137,10 @@ import { areaAt, CollisionGrid, makeWorld as generateWorld, WORLD } from "./worl
 
   const setRpgTab = (tab: "character" | "skills" | "inventory") => {
     activeRpgTab = tab;
-    for (const button of ui.progressionPanel.querySelectorAll<HTMLElement>("[data-rpg-tab]")) {
+    for (const button of Array.from(ui.progressionPanel.querySelectorAll<HTMLElement>("[data-rpg-tab]"))) {
       button.classList.toggle("active", button.dataset.rpgTab === tab);
     }
-    for (const view of ui.progressionPanel.querySelectorAll<HTMLElement>("[data-rpg-view]")) {
+    for (const view of Array.from(ui.progressionPanel.querySelectorAll<HTMLElement>("[data-rpg-view]"))) {
       view.classList.toggle("active", view.dataset.rpgView === tab);
     }
     audio.play("uiSelect");
@@ -169,13 +169,13 @@ import { areaAt, CollisionGrid, makeWorld as generateWorld, WORLD } from "./worl
 
   ui.progressionToggle.addEventListener("click", () => toggleProgression());
   ui.progressionClose.addEventListener("click", () => toggleProgression(false));
-  for (const button of ui.progressionPanel.querySelectorAll<HTMLElement>("[data-rpg-tab]")) {
+  for (const button of Array.from(ui.progressionPanel.querySelectorAll<HTMLElement>("[data-rpg-tab]"))) {
     button.addEventListener("click", () => {
       const tab = button.dataset.rpgTab;
       if (tab === "character" || tab === "skills" || tab === "inventory") setRpgTab(tab);
     });
   }
-  for (const button of ui.progressionPanel.querySelectorAll<HTMLElement>("[data-slot-focus]")) {
+  for (const button of Array.from(ui.progressionPanel.querySelectorAll<HTMLElement>("[data-slot-focus]"))) {
     button.addEventListener("click", () => {
       const slot = button.dataset.slotFocus;
       if (slot === "weapon" || slot === "armor" || slot === "charm") {
@@ -186,7 +186,7 @@ import { areaAt, CollisionGrid, makeWorld as generateWorld, WORLD } from "./worl
       }
     });
   }
-  for (const button of ui.progressionPanel.querySelectorAll<HTMLElement>("[data-inventory-filter]")) {
+  for (const button of Array.from(ui.progressionPanel.querySelectorAll<HTMLElement>("[data-inventory-filter]"))) {
     button.addEventListener("click", () => {
       const filter = button.dataset.inventoryFilter;
       if (filter === "all" || filter === "weapon" || filter === "armor" || filter === "charm") {
@@ -1218,7 +1218,7 @@ import { areaAt, CollisionGrid, makeWorld as generateWorld, WORLD } from "./worl
     ui.skill1CooldownText.textContent = skill1Cd > 0 ? `${skill1Cd.toFixed(1)}S` : "READY";
     ui.skill2CooldownText.textContent = progression.ownsSkill("aegis-burst") ? (skill2Cd > 0 ? `${skill2Cd.toFixed(1)}S` : "READY") : "LOCKED";
     ui.skill3CooldownText.textContent = progression.ownsSkill("wind-step") ? (skill3Cd > 0 ? `${skill3Cd.toFixed(1)}S` : "READY") : "LOCKED";
-    for (const button of ui.progressionPanel.querySelectorAll<HTMLElement>("[data-inventory-filter]")) {
+    for (const button of Array.from(ui.progressionPanel.querySelectorAll<HTMLElement>("[data-inventory-filter]"))) {
       button.classList.toggle("active", button.dataset.inventoryFilter === inventoryFilter);
     }
     const inventoryIds = [...progression.inventory]
