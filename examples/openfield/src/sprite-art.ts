@@ -52,7 +52,10 @@ const wizard: SpriteSet = {
 function directionRow(worldX: number, worldY: number): number {
   const screenX = worldX - worldY;
   const screenY = worldX + worldY;
-  if (screenY >= 0) return screenX >= 0 ? 0 : 1;
+
+  // 2D!PIXX row order, expressed in projected screen directions:
+  // 0 = down-left, 1 = down-right, 2 = up-left, 3 = up-right.
+  if (screenY >= 0) return screenX >= 0 ? 1 : 0;
   return screenX < 0 ? 2 : 3;
 }
 
