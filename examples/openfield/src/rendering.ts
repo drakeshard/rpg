@@ -336,6 +336,78 @@ export function createRenderer(options: RendererOptions) {
     ctx.fill();
   }
 
+  function limb(x1: number, y1: number, x2: number, y2: number, width: number, color: string) {
+    ctx.strokeStyle = "rgba(7, 12, 10, .62)";
+    ctx.lineWidth = width + 2;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    ctx.lineCap = "butt";
+  }
+
+  function boot(x: number, y: number, scale: number, color: string, direction = 1) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.ellipse(x + direction * 2 * scale, y, 6 * scale, 3.4 * scale, direction * .08, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function drawShield(x: number, y: number, scale: number, color: string) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(0, -12 * scale);
+    ctx.lineTo(10 * scale, -6 * scale);
+    ctx.lineTo(8 * scale, 9 * scale);
+    ctx.lineTo(0, 15 * scale);
+    ctx.lineTo(-8 * scale, 9 * scale);
+    ctx.lineTo(-10 * scale, -6 * scale);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = "rgba(226, 210, 161, .38)";
+    ctx.lineWidth = 1.5 * scale;
+    ctx.stroke();
+    ctx.fillStyle = "rgba(224, 196, 114, .32)";
+    ctx.beginPath();
+    ctx.arc(0, 0, 2.5 * scale, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawSword(x: number, y: number, angle: number, scale: number, glow = false) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.strokeStyle = "#5b4633";
+    ctx.lineWidth = 4 * scale;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(0, -10 * scale);
+    ctx.stroke();
+    ctx.strokeStyle = glow ? "#ffe7a8" : "#d9cfaa";
+    ctx.lineWidth = 3 * scale;
+    ctx.beginPath();
+    ctx.moveTo(0, -8 * scale);
+    ctx.lineTo(0, -35 * scale);
+    ctx.stroke();
+    ctx.strokeStyle = "#aa8b4d";
+    ctx.lineWidth = 2 * scale;
+    ctx.beginPath();
+    ctx.moveTo(-6 * scale, -9 * scale);
+    ctx.lineTo(6 * scale, -9 * scale);
+    ctx.stroke();
+    ctx.restore();
+  }
+
   function drawEnemy(enemy: Enemy) {
     if (enemy.dead && enemy.deathTimer <= 0) return;
     if (!visible(enemy.x, enemy.y, 110)) return;
