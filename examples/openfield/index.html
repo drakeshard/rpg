@@ -3,44 +3,76 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#0f1720" />
+  <meta name="theme-color" content="#07110f" />
   <title>Openfield — Greywood Outskirts</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <main id="game-shell">
     <canvas id="game" aria-label="Openfield action game"></canvas>
+    <div class="cinematic-frame" aria-hidden="true"></div>
+    <div class="world-vignette" aria-hidden="true"></div>
+
+    <header class="top-brand" aria-hidden="true">
+      <span class="brand-mark">D</span>
+      <div>
+        <strong>OPENFIELD</strong>
+        <small>GREYWOOD OUTSKIRTS</small>
+      </div>
+    </header>
 
     <section class="hud hud-objective" aria-live="polite">
       <div class="quest-panel">
-        <div class="eyebrow">GREYWOOD OUTSKIRTS <span class="quest-glyph">✦</span></div>
-        <div class="quest-title">Awaken the beacon</div>
-        <div class="quest-progress"><span id="objectiveStep">Clear hostiles</span><strong id="objectiveText">0 / 8</strong></div>
+        <div class="quest-kicker"><span class="quest-rune">◇</span> FIELD OBJECTIVE <span class="quest-glyph">✦</span></div>
+        <div class="quest-title">Awaken the Greywood Beacon</div>
+        <div class="quest-progress">
+          <div>
+            <span class="quest-label">CURRENT STEP</span>
+            <strong id="objectiveStep">Clear hostiles</strong>
+          </div>
+          <div class="quest-count"><span id="objectiveText">0 / 8</span></div>
+        </div>
       </div>
     </section>
 
     <section class="hud hud-status" aria-label="Player status">
-      <div class="status-emblem" aria-hidden="true">✦</div>
+      <div class="portrait-ring" aria-hidden="true">
+        <div class="portrait-silhouette">◆</div>
+        <span class="level-chip">I</span>
+      </div>
       <div class="status-content">
+        <div class="identity-line"><strong>THE WARDEN</strong><span>WAYFARER</span></div>
         <div class="bar-row health-row">
-          <span>HEALTH</span><div class="bar"><div id="hpBar" class="fill hp"></div></div><strong id="hpText">100</strong>
+          <div class="bar-label"><span>VITALITY</span><strong id="hpText">100</strong></div>
+          <div class="bar"><div id="hpBar" class="fill hp"></div></div>
         </div>
         <div class="bar-row">
-          <span>STAMINA</span><div class="bar"><div id="staminaBar" class="fill stamina"></div></div><strong id="staminaText">100</strong>
+          <div class="bar-label"><span>STAMINA</span><strong id="staminaText">100</strong></div>
+          <div class="bar"><div id="staminaBar" class="fill stamina"></div></div>
         </div>
-        <div class="wallet"><span>◈ <strong id="goldText">0</strong> GOLD</span><span>✚ <strong id="potionText">0</strong> POTIONS</span></div>
+        <div class="wallet">
+          <span><i>◈</i><strong id="goldText">0</strong><small>GOLD</small></span>
+          <span><i>✚</i><strong id="potionText">0</strong><small>POTIONS</small></span>
+        </div>
       </div>
     </section>
 
     <section class="hud hud-right" aria-label="Map and options">
       <div class="radar-panel">
-        <div class="panel-title">FIELD MAP</div>
-        <canvas id="radar" width="150" height="150" aria-label="Radar"></canvas>
+        <div class="radar-header"><span>FIELD MAP</span><small>N</small></div>
+        <div class="radar-frame">
+          <canvas id="radar" width="170" height="170" aria-label="Radar"></canvas>
+          <div class="radar-crosshair" aria-hidden="true"></div>
+        </div>
+        <div class="radar-caption"><span>GREYWOOD</span><span>OUTSKIRTS</span></div>
       </div>
-      <button id="audioToggle" class="audio-toggle" type="button" aria-expanded="false" aria-controls="audioPanel">♪ <span>Sound</span></button>
+      <button id="audioToggle" class="audio-toggle" type="button" aria-expanded="false" aria-controls="audioPanel">
+        <span class="audio-icon">♪</span><span>Sound</span>
+      </button>
       <div id="audioPanel" class="audio-panel hidden">
-        <label for="masterVolume">Master <input id="masterVolume" type="range" min="0" max="100" value="42" /></label>
-        <label for="sfxVolume">Effects <input id="sfxVolume" type="range" min="0" max="100" value="62" /></label>
+        <div class="panel-title">AUDIO</div>
+        <label for="masterVolume"><span>Master</span><input id="masterVolume" type="range" min="0" max="100" value="42" /></label>
+        <label for="sfxVolume"><span>Effects</span><input id="sfxVolume" type="range" min="0" max="100" value="62" /></label>
         <button id="muteButton" type="button" aria-pressed="false">Mute audio</button>
       </div>
       <div id="debugPanel" class="debug-panel hidden">
@@ -51,10 +83,10 @@
     </section>
 
     <section class="action-bar" aria-label="Actions">
-      <div class="action-key"><kbd>SPACE</kbd><span>Strike</span><small id="attackCooldownText">READY</small></div>
-      <div class="action-key"><kbd>Q</kbd><span>Dash</span><small id="dashCooldownText">READY</small></div>
-      <div class="action-key"><kbd>H</kbd><span>Potion</span><small id="potionCountText">0 LEFT</small></div>
-      <div class="action-key"><kbd>E</kbd><span>Interact</span><small>NEARBY</small></div>
+      <div class="action-key primary-action"><kbd>SPACE</kbd><span class="action-icon">⚔</span><strong>Strike</strong><small id="attackCooldownText">READY</small></div>
+      <div class="action-key"><kbd>Q</kbd><span class="action-icon">➶</span><strong>Dash</strong><small id="dashCooldownText">READY</small></div>
+      <div class="action-key"><kbd>H</kbd><span class="action-icon">✚</span><strong>Potion</strong><small id="potionCountText">0 LEFT</small></div>
+      <div class="action-key"><kbd>E</kbd><span class="action-icon">◇</span><strong>Interact</strong><small>NEARBY</small></div>
     </section>
 
     <div id="message" class="message hidden" role="status"></div>
@@ -62,27 +94,28 @@
     <div id="damageFlash" class="damage-flash" aria-hidden="true"></div>
 
     <section id="startScreen" class="overlay">
-      <div class="overlay-card">
-        <div class="eyebrow">A GREYWOOD ADVENTURE</div>
+      <div class="overlay-card intro-card">
+        <div class="intro-seal" aria-hidden="true"><span>✦</span></div>
+        <div class="eyebrow">DRAKESHARD FIELD TRIAL</div>
         <h1>Openfield</h1>
-        <p>Push through the outskirts and awaken the ancient beacon.</p>
-        <ul>
-          <li>Explore the open field.</li>
-          <li>Enemies detect, chase, and attack you.</li>
-          <li>Defeat 8 enemies, then activate the ruin beacon.</li>
-          <li>Open chests and gather loot with E.</li>
-        </ul>
-        <button id="startButton" type="button">Enter Greywood</button>
-        <small>WASD move · Shift sprint · Space strike · Q dash · E interact</small>
+        <div class="title-rule"><span></span><b>GREYWOOD OUTSKIRTS</b><span></span></div>
+        <p class="intro-copy">A blighted frontier has gone silent. Cross the old road, break the hostile patrols, and rekindle the beacon beyond the ruins.</p>
+        <div class="mission-grid">
+          <div><span>01</span><p>Hunt the eight corrupted sentries.</p></div>
+          <div><span>02</span><p>Scavenge chests, potions, and field gold.</p></div>
+          <div><span>03</span><p>Reach the eastern ruins and awaken the beacon.</p></div>
+        </div>
+        <button id="startButton" type="button"><span>Enter Greywood</span><b>→</b></button>
+        <div class="control-strip"><span><kbd>WASD</kbd> MOVE</span><span><kbd>SHIFT</kbd> SPRINT</span><span><kbd>SPACE</kbd> STRIKE</span><span><kbd>Q</kbd> DASH</span></div>
       </div>
     </section>
 
     <section id="endScreen" class="overlay hidden">
-      <div class="overlay-card">
+      <div class="overlay-card result-card">
         <div class="eyebrow" id="endEyebrow">MISSION COMPLETE</div>
         <h2 id="endTitle">Field Cleared</h2>
         <p id="endText">All hostiles have been defeated.</p>
-        <button id="restartButton" type="button">Play Again</button>
+        <button id="restartButton" type="button"><span>Return to Greywood</span><b>↻</b></button>
       </div>
     </section>
   </main>

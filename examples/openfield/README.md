@@ -65,6 +65,10 @@ Add `?stress=1` for the diagnostic scene with 50 enemies and roughly 500 world o
 
 `.github/workflows/openfield-pages.yml` builds this sample on pull requests and deploys the same artifact to GitHub Pages from `main`. The Pages site is a demonstration surface only; it is not an npm-release or RPG-public-API signal.
 
+## Presentation
+
+The sample uses a procedural dark-fantasy presentation layer: a compact quest HUD, Warden resource/identity panel, action slots, framed field radar, cinematic start/result screens, richer environment props, and distinct procedural player/grunt/fast/heavy silhouettes. These visuals remain application-owned and intentionally require no renderer framework or shared-library UI surface.
+
 ## Current limits
 
 Production sprite artwork has not been authored. Enemy navigation still uses simple steering and can get caught around dense obstacles. Persistent save/load is intentionally not added in this first integration pass; that remains a useful later Foundation storage pressure test.
