@@ -9,6 +9,7 @@ import type {
   Prop,
   VisualState,
 } from "./model";
+import { warriorFrame, wizardFrame, type SpriteFrame, type SpriteMotion } from "./sprite-art";
 
 interface Camera {
   x: number;
@@ -336,6 +337,31 @@ export function createRenderer(options: RendererOptions) {
     ctx.fill();
   }
 
+  function drawSpriteFrame(
+    frame: SpriteFrame,
+    centerX: number,
+    feetY: number,
+    scale: number,
+    alpha = 1,
+  ) {
+    const width = 96 * scale;
+    const height = 120 * scale;
+    ctx.save();
+    ctx.globalAlpha *= alpha;
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(
+      frame.image,
+      frame.sx,
+      frame.sy,
+      frame.sw,
+      frame.sh,
+      centerX - width / 2,
+      feetY - height,
+      width,
+      height,
+    );
+    ctx.restore();
+  }
   function limb(x1: number, y1: number, x2: number, y2: number, width: number, color: string) {
     ctx.strokeStyle = "rgba(7, 12, 10, .62)";
     ctx.lineWidth = width + 2;
@@ -418,6 +444,35 @@ export function createRenderer(options: RendererOptions) {
     const heavy = enemy.definition.id === "heavy";
     const fast = enemy.definition.id === "fast";
     const alpha = enemy.dead ? Math.max(.12, enemy.deathTimer / .65) : 1;
+    const spriteMotion: SpriteMotion =
+      enemy.state === "ATTACK" ? "attack" :
+      enemy.state === "CHASE" || enemy.state === "RETURN" || enemy.state === "WANDER" ? "walk" : "idle";
+    const sprite = (fast ? wizardFrame : warriorFrame)(
+      spriteMotion,
+      enemy.facingX,
+      enemy.facingY,
+      visual.time + enemy.id * .17,
+    );
+    if (sprite) {
+      const artScale = s * (heavy ? 1.08 : fast ? .88 : .96);
+      shadow(enemy.x, enemy.y, heavy ? 31 : fast ? 20 : 24, heavy ? 11 : 8, .3 * alpha);
+      if (enemy.hitFlash > 0) {
+        ctx.fillStyle = "rgba(255, 225, 190, .16)";
+        ctx.beginPath();
+        ctx.arc(p.x, p.y - 46 * artScale, 31 * artScale, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      drawSpriteFrame(sprite, p.x, p.y + 5 * s, artScale, alpha);
+      if (!enemy.dead && (enemy.hp < enemy.maxHp || enemy.barTimer > 0)) {
+        const w = (heavy ? 54 : fast ? 42 : 46) * s;
+        const y = p.y - (heavy ? 112 : 101) * s;
+        ctx.fillStyle = "rgba(6, 12, 10, .82)";
+        ctx.fillRect(p.x - w / 2, y, w, 5);
+        ctx.fillStyle = heavy ? "#bd6c55" : fast ? "#d37a78" : "#c56d5d";
+        ctx.fillRect(p.x - w / 2 + 1, y + 1, Math.max(0, (w - 2) * (enemy.hp / enemy.maxHp)), 3);
+      }
+      return;
+    }
     const gait = enemy.dead ? 0 : Math.sin(enemy.stepTime * (fast ? 3.8 : heavy ? 2.1 : 2.9));
     const attackPhase = enemy.attackAnim > 0 ? Math.sin(Math.min(1, enemy.attackAnim / .3) * Math.PI) : 0;
     const fx = enemy.facingX - enemy.facingY;
@@ -554,6 +609,37 @@ export function createRenderer(options: RendererOptions) {
     const side = fx >= 0 ? 1 : -1;
     const attackPhase = player.attackTimer > 0 ? Math.sin((1 - player.attackTimer / .34) * Math.PI) : 0;
     const hit = player.hitFlash > 0;
+    const spriteMotion: SpriteMotion =
+      player.state === "attack" ? "attack" :
+      player.state === "walk" || player.state === "run" || player.state === "dash" ? "walk" : "idle";
+    const sprite = warriorFrame(
+      spriteMotion,
+      player.visualFacingX,
+      player.visualFacingY,
+      visual.time,
+    );
+    if (sprite) {
+      for (const image of afterimages) {
+        const q = project(image.x, image.y);
+        drawSpriteFrame(sprite, q.x, q.y + 5 * s, s, Math.max(0, image.life / .22) * .13);
+      }
+      shadow(player.x, player.y, 27, 10, .35);
+      if (hit) {
+        ctx.fillStyle = "rgba(182, 248, 232, .15)";
+        ctx.beginPath();
+        ctx.arc(p.x, p.y - 50 * s, 33 * s, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      drawSpriteFrame(sprite, p.x, p.y + 5 * s, s, 1);
+      if (attackPhase > .05) {
+        ctx.strokeStyle = "rgba(241, 211, 132, .35)";
+        ctx.lineWidth = 2 * s;
+        ctx.beginPath();
+        ctx.arc(p.x + side * 8 * s, p.y - 42 * s, 40 * s, side > 0 ? -1.2 : 2.1, side > 0 ? .65 : 4.05);
+        ctx.stroke();
+      }
+      return;
+    }
 
     for (const image of afterimages) {
       const q = project(image.x, image.y);

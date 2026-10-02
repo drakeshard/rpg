@@ -67,7 +67,9 @@ Add `?stress=1` for the diagnostic scene with 50 enemies and roughly 500 world o
 
 ## Presentation
 
-The sample uses a procedural dark-fantasy presentation layer: a compact quest HUD, Warden resource/identity panel, action slots, framed field radar, cinematic start/result screens, richer environment props, and distinct procedural player/grunt/fast/heavy silhouettes. These visuals remain application-owned and intentionally require no renderer framework or shared-library UI surface.
+The primary unit presentation now uses hand-drawn isometric character sprites by Jana Ochse / 2D!PIXX under CC BY 3.0, with procedural rigs retained only as a runtime fallback when remote art cannot load. The sprite sets provide 128×160 frames, four directions, and idle/walk/attack animation states. See `ART-CREDITS.md` for attribution and source links.
+
+The surrounding sample uses a procedural dark-fantasy presentation layer: a compact quest HUD, Warden resource/identity panel, action slots, framed field radar, cinematic start/result screens, richer environment props, and distinct procedural player/grunt/fast/heavy silhouettes. These visuals remain application-owned and intentionally require no renderer framework or shared-library UI surface.
 
 ## Current limits
 
