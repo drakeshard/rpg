@@ -131,6 +131,7 @@ button { cursor: pointer; }
 .overlay-card button b { font-size:16px; }
 .control-strip { display:flex; justify-content:center; flex-wrap:wrap; gap:10px 18px; margin-top:15px; color:#667c70; font-size:7px; font-weight:850; letter-spacing:.08em; }
 .control-strip kbd { color:#b7c7bc; }
+.art-credit { display:block; margin-top:12px; color:#65786f; font-size:7px; letter-spacing:.04em; }
 .result-card { max-width:430px; text-align:center; }
 .result-card p { color:#9eb0a5; line-height:1.6; }
 .overlay.win-toast { inset:0 0 auto; height:auto; padding:18px; background:transparent; backdrop-filter:none; pointer-events:none; }
