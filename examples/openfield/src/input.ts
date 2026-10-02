@@ -24,6 +24,10 @@ const ACTIONS = [
   "potion",
   "restart",
   "debug",
+  "skill-1",
+  "skill-2",
+  "skill-3",
+  "progression",
 ] as const satisfies readonly LogicalActionId[];
 
 type SampleAction = (typeof ACTIONS)[number];
@@ -35,6 +39,10 @@ export interface InputActions {
   potion: boolean;
   restart: boolean;
   debug: boolean;
+  skill1: boolean;
+  skill2: boolean;
+  skill3: boolean;
+  progression: boolean;
   zoom: number;
 }
 
@@ -70,6 +78,10 @@ export function bindInput(
     { action: "potion", binding: { kind: "key", code: "KeyH" } },
     { action: "restart", binding: { kind: "key", code: "KeyR" } },
     { action: "debug", binding: { kind: "key", code: "F3" } },
+    { action: "skill-1", binding: { kind: "key", code: "Digit1" } },
+    { action: "skill-2", binding: { kind: "key", code: "Digit2" } },
+    { action: "skill-3", binding: { kind: "key", code: "Digit3" } },
+    { action: "progression", binding: { kind: "key", code: "KeyK" } },
   ]);
   const contexts = new InputContextRouter([
     {
@@ -159,6 +171,10 @@ export function bindInput(
         potion: pressed.has("potion"),
         restart: pressed.has("restart") || uiRestart,
         debug: pressed.has("debug"),
+        skill1: pressed.has("skill-1"),
+        skill2: pressed.has("skill-2"),
+        skill3: pressed.has("skill-3"),
+        progression: pressed.has("progression"),
         zoom,
       };
       zoom = 0;
