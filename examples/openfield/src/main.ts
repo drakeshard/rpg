@@ -833,7 +833,7 @@ import { areaAt, CollisionGrid, makeWorld as generateWorld, WORLD } from "./worl
             ? "[E] Open Chest"
             : item.type === "campfire"
               ? "[E] Rest at Campfire"
-              : player.kills >= OBJECTIVE_KILLS
+              : progression.currentQuest?.id === "beacon"
                 ? "[E] Activate Beacon"
                 : "[E] Inspect Beacon"
       : "";
