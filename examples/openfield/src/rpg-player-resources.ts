@@ -2,6 +2,7 @@ import {
   decreaseResource,
   increaseResource,
   initializeResource,
+  setResourceCapacity,
   type ResourceDefinition,
   type ResourceState,
 } from "../../../src/resources/index";
@@ -64,5 +65,15 @@ export class PlayerResources {
     if (outcome.kind === "rejected") return 0;
     this.stamina = outcome.state;
     return this.stamina.current - before;
+  }
+
+  setHealthCapacity(capacity: number): void {
+    const outcome = setResourceCapacity(HEALTH, this.health, capacity);
+    if (outcome.kind !== "rejected") this.health = outcome.state;
+  }
+
+  setStaminaCapacity(capacity: number): void {
+    const outcome = setResourceCapacity(STAMINA, this.stamina, capacity);
+    if (outcome.kind !== "rejected") this.stamina = outcome.state;
   }
 }
