@@ -509,109 +509,130 @@ export function createRenderer(options: RendererOptions) {
 
   function drawPlayer() {
     const p = project(player.x, player.y, player.z);
-    const scale = camera.zoom;
-    const bob = player.state === "walk" || player.state === "run"
-      ? Math.sin(player.stepTime * 2.5) * (player.state === "run" ? 2.2 : 1.3) * scale
-      : 0;
+    const s = camera.zoom;
+    const moving = player.state === "walk" || player.state === "run";
+    const gait = moving ? Math.sin(player.stepTime * (player.state === "run" ? 3.7 : 2.8)) : 0;
+    const bob = moving ? Math.abs(Math.cos(player.stepTime * 2.8)) * (player.state === "run" ? 2.2 : 1.2) * s : 0;
+    const fx = player.visualFacingX - player.visualFacingY;
+    const fy = (player.visualFacingX + player.visualFacingY) * .5;
+    const side = fx >= 0 ? 1 : -1;
+    const attackPhase = player.attackTimer > 0 ? Math.sin((1 - player.attackTimer / .34) * Math.PI) : 0;
+    const hit = player.hitFlash > 0;
 
     for (const image of afterimages) {
       const q = project(image.x, image.y);
-      ctx.globalAlpha = Math.max(0, image.life / 0.22) * 0.24;
-      ctx.fillStyle = "#78c2af";
+      ctx.globalAlpha = Math.max(0, image.life / .22) * .2;
+      ctx.fillStyle = "#75bbaa";
       ctx.beginPath();
-      ctx.moveTo(q.x, q.y - 54 * scale);
-      ctx.lineTo(q.x + 16 * scale, q.y - 25 * scale);
-      ctx.lineTo(q.x + 10 * scale, q.y - 2 * scale);
-      ctx.lineTo(q.x - 10 * scale, q.y - 2 * scale);
-      ctx.lineTo(q.x - 16 * scale, q.y - 25 * scale);
+      ctx.moveTo(q.x - 13 * s, q.y - 49 * s);
+      ctx.lineTo(q.x + 13 * s, q.y - 49 * s);
+      ctx.lineTo(q.x + 16 * s, q.y - 6 * s);
+      ctx.lineTo(q.x, q.y);
+      ctx.lineTo(q.x - 16 * s, q.y - 6 * s);
       ctx.closePath();
       ctx.fill();
     }
     ctx.globalAlpha = 1;
 
-    shadow(player.x, player.y, 25, 9, 0.34);
+    shadow(player.x, player.y, 27, 10, .35);
     ctx.save();
-    ctx.translate(p.x, p.y + bob);
+    const dashLean = player.state === "dash" ? 7 * s : 0;
+    ctx.translate(p.x + fx * dashLean, p.y + bob + fy * dashLean);
 
-    const fx = (player.visualFacingX - player.visualFacingY);
-    const fy = (player.visualFacingX + player.visualFacingY) * .5;
-    const attacking = player.attackTimer > 0;
-    const hit = player.hitFlash > 0;
+    const hipY = -25 * s;
+    const shoulderY = -50 * s;
+    const headY = -67 * s;
+    const step = gait * (player.state === "run" ? 6.5 : 4.3) * s;
 
-    ctx.fillStyle = player.state === "dash" ? "rgba(86, 154, 144, .35)" : "#203d3e";
+    limb(-7 * s, hipY, -8 * s - step * .42, -5 * s, 6.5 * s, "#263d3f");
+    limb(7 * s, hipY, 8 * s + step * .42, -5 * s, 6.5 * s, "#263d3f");
+    boot(-8 * s - step * .42, -2 * s, s, "#171f20", side);
+    boot(8 * s + step * .42, -2 * s, s, "#171f20", side);
+
+    ctx.fillStyle = player.state === "dash" ? "rgba(82, 151, 140, .38)" : "#1a3134";
     ctx.beginPath();
-    ctx.moveTo(-14 * scale, -47 * scale);
-    ctx.lineTo(14 * scale, -47 * scale);
-    ctx.lineTo(18 * scale, -9 * scale);
-    ctx.lineTo(9 * scale, -2 * scale);
-    ctx.lineTo(-9 * scale, -2 * scale);
-    ctx.lineTo(-18 * scale, -9 * scale);
+    ctx.moveTo(-16 * s, shoulderY + 4 * s);
+    ctx.lineTo(16 * s, shoulderY + 4 * s);
+    ctx.lineTo(18 * s, -10 * s);
+    ctx.lineTo(0, -2 * s);
+    ctx.lineTo(-18 * s, -10 * s);
     ctx.closePath();
     ctx.fill();
 
-    const coat = ctx.createLinearGradient(0, -48 * scale, 0, -2 * scale);
-    coat.addColorStop(0, hit ? "#8ccac0" : "#376d71");
-    coat.addColorStop(1, hit ? "#669d98" : "#244b50");
-    ctx.fillStyle = coat;
+    const chest = ctx.createLinearGradient(0, shoulderY, 0, -15 * s);
+    chest.addColorStop(0, hit ? "#99d2c6" : "#42777a");
+    chest.addColorStop(1, hit ? "#6eaaa1" : "#274e53");
+    ctx.fillStyle = chest;
     ctx.beginPath();
-    ctx.moveTo(-15 * scale, -46 * scale);
-    ctx.lineTo(15 * scale, -46 * scale);
-    ctx.lineTo(13 * scale, -14 * scale);
-    ctx.lineTo(5 * scale, -3 * scale);
-    ctx.lineTo(-5 * scale, -3 * scale);
-    ctx.lineTo(-13 * scale, -14 * scale);
-    ctx.closePath();
+    ctx.roundRect(-15 * s, shoulderY - 1 * s, 30 * s, 32 * s, 7 * s);
     ctx.fill();
-
-    ctx.fillStyle = "#b89465";
-    ctx.fillRect(-15 * scale, -25 * scale, 30 * scale, 4 * scale);
-
-    ctx.fillStyle = hit ? "#d9f4ea" : "#d8c59d";
-    ctx.beginPath();
-    ctx.arc(0, -58 * scale, 10 * scale, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = "#1a302f";
-    ctx.beginPath();
-    ctx.moveTo(-11 * scale, -61 * scale);
-    ctx.lineTo(-5 * scale, -70 * scale);
-    ctx.lineTo(7 * scale, -68 * scale);
-    ctx.lineTo(12 * scale, -59 * scale);
-    ctx.lineTo(7 * scale, -52 * scale);
-    ctx.lineTo(-8 * scale, -52 * scale);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.fillStyle = "#a8d5c8";
-    ctx.fillRect((-4 + fx * 1.8) * scale, (-60 + fy * 1.8) * scale, 3 * scale, 2 * scale);
-
-    ctx.strokeStyle = "#d9bd72";
-    ctx.lineWidth = 3 * scale;
-    ctx.lineCap = "round";
-    const reach = attacking ? 31 : 23;
-    const swing = attacking ? Math.sin((player.attackTimer / .34) * Math.PI) * 9 : 0;
-    ctx.beginPath();
-    ctx.moveTo(fx * 4 * scale, (-34 + fy * 4) * scale);
-    ctx.lineTo((fx * reach + swing) * scale, (-34 + fy * reach - swing * .35) * scale);
+    ctx.strokeStyle = "rgba(235, 224, 186, .16)";
     ctx.stroke();
-    ctx.lineCap = "butt";
 
-    ctx.fillStyle = "#6e5a43";
+    ctx.fillStyle = "#2d5559";
     ctx.beginPath();
-    ctx.arc(-fx * 7 * scale, (-30 - fy * 7) * scale, 6 * scale, 0, Math.PI * 2);
+    ctx.moveTo(-15 * s, shoulderY + 4 * s);
+    ctx.lineTo(0, shoulderY - 2 * s);
+    ctx.lineTo(15 * s, shoulderY + 4 * s);
+    ctx.lineTo(12 * s, shoulderY + 11 * s);
+    ctx.lineTo(-12 * s, shoulderY + 11 * s);
+    ctx.closePath();
     ctx.fill();
+
+    ctx.fillStyle = "#ba9662";
+    ctx.fillRect(-15 * s, -28 * s, 30 * s, 4 * s);
+    ctx.fillStyle = "#d1b16b";
+    ctx.fillRect(-2 * s, -29 * s, 4 * s, 6 * s);
+
+    const shoulderOffset = 17 * s;
+    const armSwing = gait * 5 * s;
+    const swordArmX = side * shoulderOffset;
+    const shieldArmX = -side * shoulderOffset;
+    const swordReach = 10 * s + attackPhase * 22 * s;
+    limb(swordArmX, shoulderY + 5 * s, swordArmX + side * swordReach, -31 * s + armSwing * .25, 6 * s, hit ? "#8dc5ba" : "#376b6d");
+    limb(shieldArmX, shoulderY + 5 * s, shieldArmX - side * 7 * s, -31 * s - armSwing * .25, 6 * s, hit ? "#8dc5ba" : "#376b6d");
+
+    ctx.fillStyle = hit ? "#eef8ec" : "#d5c39c";
+    ctx.beginPath();
+    ctx.arc(0, headY, 10 * s, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#172d2e";
+    ctx.beginPath();
+    ctx.moveTo(-11 * s, headY - 3 * s);
+    ctx.lineTo(-5 * s, headY - 14 * s);
+    ctx.lineTo(5 * s, headY - 16 * s);
+    ctx.lineTo(12 * s, headY - 4 * s);
+    ctx.lineTo(8 * s, headY + 4 * s);
+    ctx.lineTo(-8 * s, headY + 4 * s);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "#a9d9cc";
+    ctx.fillRect((-4 + fx * 1.8) * s, (headY - 1 + fy * 1.8) * s, 3 * s, 2 * s);
+
+    drawShield(shieldArmX - side * 8 * s, -30 * s, s * .95, "#31585b");
+    drawSword(swordArmX + side * swordReach, -31 * s + armSwing * .25, side * (.62 - attackPhase * 1.25), s, attackPhase > .2);
+
+    if (attackPhase > .05) {
+      ctx.strokeStyle = "rgba(241, 211, 132, .28)";
+      ctx.lineWidth = 2 * s;
+      ctx.beginPath();
+      ctx.arc(side * 9 * s, -34 * s, 37 * s, side > 0 ? -1.1 : 2.2, side > 0 ? .7 : 4.1);
+      ctx.stroke();
+    }
 
     if (player.state === "dash") {
-      ctx.strokeStyle = "rgba(139, 224, 202, .42)";
-      ctx.lineWidth = 2 * scale;
-      ctx.beginPath();
-      ctx.arc(0, -31 * scale, 30 * scale, -.7, 2.3);
-      ctx.stroke();
+      ctx.strokeStyle = "rgba(133, 226, 201, .44)";
+      ctx.lineWidth = 2 * s;
+      for (let i = 0; i < 3; i++) {
+        ctx.beginPath();
+        ctx.moveTo(-fx * (14 + i * 7) * s, (-18 - i * 8) * s);
+        ctx.lineTo(-fx * (35 + i * 9) * s, (-18 - i * 8 + fy * 7) * s);
+        ctx.stroke();
+      }
     }
 
     ctx.restore();
   }
-
   function drawLoot(item: Loot) {
     if (item.picked || !visible(item.x, item.y, 50)) return;
     visibleEntities++;
