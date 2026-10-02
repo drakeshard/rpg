@@ -362,6 +362,56 @@ export function createRenderer(options: RendererOptions) {
     );
     ctx.restore();
   }
+  function drawSlashTrail(
+    centerX: number,
+    centerY: number,
+    facingX: number,
+    facingY: number,
+    phase: number,
+    scale: number,
+  ) {
+    const clamped = Math.min(1, Math.max(0, phase));
+    const contact = Math.sin(clamped * Math.PI);
+    if (contact <= .04) return;
+
+    const screenX = facingX - facingY;
+    const screenY = (facingX + facingY) * .5;
+    const baseAngle = Math.atan2(screenY, screenX);
+    const sweepDirection = screenX >= 0 ? 1 : -1;
+    const bladeAngle = baseAngle + sweepDirection * (-1.05 + clamped * 1.95);
+    const trailSpan = .78;
+    const outer = 50 * scale;
+    const inner = 27 * scale;
+    const tailAngle = bladeAngle - sweepDirection * trailSpan;
+
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    ctx.globalAlpha = .2 + contact * .48;
+    const glow = ctx.createRadialGradient(centerX, centerY, inner * .65, centerX, centerY, outer);
+    glow.addColorStop(0, "rgba(255, 229, 159, 0)");
+    glow.addColorStop(.56, "rgba(255, 218, 126, .18)");
+    glow.addColorStop(1, "rgba(255, 245, 205, .86)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, outer, tailAngle, bladeAngle, sweepDirection < 0);
+    ctx.arc(centerX, centerY, inner, bladeAngle, tailAngle, sweepDirection >= 0);
+    ctx.closePath();
+    ctx.fill();
+
+    const tipX = centerX + Math.cos(bladeAngle) * outer;
+    const tipY = centerY + Math.sin(bladeAngle) * outer;
+    const baseX = centerX + Math.cos(bladeAngle) * inner;
+    const baseY = centerY + Math.sin(bladeAngle) * inner;
+    ctx.globalAlpha = .35 + contact * .65;
+    ctx.strokeStyle = "#fff1bd";
+    ctx.lineWidth = (1.3 + contact * 1.5) * scale;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(baseX, baseY);
+    ctx.lineTo(tipX, tipY);
+    ctx.stroke();
+    ctx.restore();
+  }
   function limb(x1: number, y1: number, x2: number, y2: number, width: number, color: string) {
     ctx.strokeStyle = "rgba(7, 12, 10, .62)";
     ctx.lineWidth = width + 2;
@@ -607,16 +657,20 @@ export function createRenderer(options: RendererOptions) {
     const fx = player.visualFacingX - player.visualFacingY;
     const fy = (player.visualFacingX + player.visualFacingY) * .5;
     const side = fx >= 0 ? 1 : -1;
-    const attackPhase = player.attackTimer > 0 ? Math.sin((1 - player.attackTimer / .34) * Math.PI) : 0;
+    const fallbackAttackPhase = player.attackTimer > 0
+      ? Math.sin((1 - player.attackTimer / .34) * Math.PI)
+      : 0;
     const hit = player.hitFlash > 0;
     const spriteMotion: SpriteMotion =
       player.state === "attack" ? "attack" :
       player.state === "walk" || player.state === "run" || player.state === "dash" ? "walk" : "idle";
+    const attackPhase = player.attackTimer > 0 ? 1 - player.attackTimer / .34 : 0;
     const sprite = warriorFrame(
       spriteMotion,
       player.visualFacingX,
       player.visualFacingY,
       visual.time,
+      spriteMotion === "attack" ? attackPhase : undefined,
     );
     if (sprite) {
       for (const image of afterimages) {
@@ -631,12 +685,15 @@ export function createRenderer(options: RendererOptions) {
         ctx.fill();
       }
       drawSpriteFrame(sprite, p.x, p.y + 5 * s, s, 1);
-      if (attackPhase > .05) {
-        ctx.strokeStyle = "rgba(241, 211, 132, .35)";
-        ctx.lineWidth = 2 * s;
-        ctx.beginPath();
-        ctx.arc(p.x + side * 8 * s, p.y - 42 * s, 40 * s, side > 0 ? -1.2 : 2.1, side > 0 ? .65 : 4.05);
-        ctx.stroke();
+      if (spriteMotion === "attack") {
+        drawSlashTrail(
+          p.x,
+          p.y - 46 * s,
+          player.visualFacingX,
+          player.visualFacingY,
+          attackPhase,
+          s,
+        );
       }
       return;
     }
@@ -710,7 +767,7 @@ export function createRenderer(options: RendererOptions) {
     const armSwing = gait * 5 * s;
     const swordArmX = side * shoulderOffset;
     const shieldArmX = -side * shoulderOffset;
-    const swordReach = 10 * s + attackPhase * 22 * s;
+    const swordReach = 10 * s + fallbackAttackPhase * 22 * s;
     limb(swordArmX, shoulderY + 5 * s, swordArmX + side * swordReach, -31 * s + armSwing * .25, 6 * s, hit ? "#8dc5ba" : "#376b6d");
     limb(shieldArmX, shoulderY + 5 * s, shieldArmX - side * 7 * s, -31 * s - armSwing * .25, 6 * s, hit ? "#8dc5ba" : "#376b6d");
 
@@ -732,14 +789,17 @@ export function createRenderer(options: RendererOptions) {
     ctx.fillRect((-4 + fx * 1.8) * s, (headY - 1 + fy * 1.8) * s, 3 * s, 2 * s);
 
     drawShield(shieldArmX - side * 8 * s, -30 * s, s * .95, "#31585b");
-    drawSword(swordArmX + side * swordReach, -31 * s + armSwing * .25, side * (.62 - attackPhase * 1.25), s, attackPhase > .2);
+    drawSword(swordArmX + side * swordReach, -31 * s + armSwing * .25, side * (.62 - fallbackAttackPhase * 1.25), s, attackPhase > .2);
 
-    if (attackPhase > .05) {
-      ctx.strokeStyle = "rgba(241, 211, 132, .28)";
-      ctx.lineWidth = 2 * s;
-      ctx.beginPath();
-      ctx.arc(side * 9 * s, -34 * s, 37 * s, side > 0 ? -1.1 : 2.2, side > 0 ? .7 : 4.1);
-      ctx.stroke();
+    if (fallbackAttackPhase > .05) {
+      drawSlashTrail(
+        0,
+        -34 * s,
+        player.visualFacingX,
+        player.visualFacingY,
+        1 - player.attackTimer / .34,
+        s,
+      );
     }
 
     if (player.state === "dash") {
