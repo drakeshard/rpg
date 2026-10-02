@@ -56,7 +56,11 @@ function directionRow(worldX: number, worldY: number): number {
   return screenX < 0 ? 2 : 3;
 }
 
-function animationFrame(motion: SpriteMotion, time: number): number {
+function animationFrame(motion: SpriteMotion, time: number, phase?: number): number {
+  if (motion === "attack" && phase !== undefined) {
+    const clamped = Math.min(0.999, Math.max(0, phase));
+    return Math.floor(clamped * FRAMES_PER_DIRECTION);
+  }
   const fps = motion === "walk" ? 8 : motion === "attack" ? 10 : 3;
   return Math.floor(time * fps) % FRAMES_PER_DIRECTION;
 }
@@ -67,12 +71,13 @@ function frameFrom(
   facingX: number,
   facingY: number,
   time: number,
+  phase?: number,
 ): SpriteFrame | null {
   const source = set[motion];
   if (!source.complete || source.naturalWidth <= 0) return null;
   return {
     image: source,
-    sx: animationFrame(motion, time) * FRAME_WIDTH,
+    sx: animationFrame(motion, time, phase) * FRAME_WIDTH,
     sy: directionRow(facingX, facingY) * FRAME_HEIGHT,
     sw: FRAME_WIDTH,
     sh: FRAME_HEIGHT,
@@ -84,8 +89,9 @@ export function warriorFrame(
   facingX: number,
   facingY: number,
   time: number,
+  phase?: number,
 ): SpriteFrame | null {
-  return frameFrom(warrior, motion, facingX, facingY, time);
+  return frameFrom(warrior, motion, facingX, facingY, time, phase);
 }
 
 export function wizardFrame(
@@ -93,6 +99,7 @@ export function wizardFrame(
   facingX: number,
   facingY: number,
   time: number,
+  phase?: number,
 ): SpriteFrame | null {
-  return frameFrom(wizard, motion, facingX, facingY, time);
+  return frameFrom(wizard, motion, facingX, facingY, time, phase);
 }
