@@ -104,46 +104,156 @@
     <div id="message" class="message hidden" role="status"></div>
     <div id="interactPrompt" class="interact-prompt" role="status"></div>
     <div id="damageFlash" class="damage-flash" aria-hidden="true"></div>
+    <div id="eventBanner" class="event-banner hidden" role="status">
+      <span id="eventBannerKicker">WARDEN</span>
+      <strong id="eventBannerTitle">Rank Advanced</strong>
+      <small id="eventBannerText"></small>
+    </div>
 
     <section id="progressionPanel" class="progression-panel hidden" aria-label="Warden progression">
-      <div class="progression-header">
-        <div>
-          <span class="eyebrow">WARDEN RECORD</span>
-          <h2>Build & Equipment</h2>
+      <div class="rpg-window-frame" aria-hidden="true"></div>
+      <header class="progression-header">
+        <div class="progression-title">
+          <span class="eyebrow">WARDEN DOSSIER</span>
+          <h2>Wayfarer Record</h2>
+          <p>Shape your discipline, compare equipment, and prepare for the next field.</p>
         </div>
-        <button id="progressionClose" type="button">×</button>
-      </div>
-      <div class="progression-summary">
-        <span>Rank <strong id="panelRank">I</strong></span>
-        <span>Skill Points <strong id="skillPointsText">1</strong></span>
-        <span>STR <strong id="strengthText">10</strong></span>
-        <span>AGI <strong id="agilityText">10</strong></span>
-        <span>VIT <strong id="vitalityText">10</strong></span>
-      </div>
-      <div class="progression-columns">
-        <div>
-          <h3>Discipline</h3>
-          <button id="bladeSkillButton" class="tree-node" type="button">
-            <strong>Blade Mastery</strong><span id="bladeSkillRank">Rank 0 / 3</span>
-            <small>Strike damage. Rank II unlocks Aegis Burst.</small>
-          </button>
-          <button id="windSkillButton" class="tree-node" type="button">
-            <strong>Wind Discipline</strong><span id="windSkillRank">Rank 0 / 3</span>
-            <small>Dash recovery. Rank II unlocks Wind Step.</small>
-          </button>
-          <button id="heartSkillButton" class="tree-node" type="button">
-            <strong>Iron Heart</strong><span id="heartSkillRank">Rank 0 / 3</span>
-            <small>Maximum vitality and camp recovery.</small>
-          </button>
+        <div class="progression-header-meta">
+          <div class="header-rank"><span>RANK</span><strong id="panelRank">I</strong></div>
+          <div class="header-points"><span>DISCIPLINE</span><strong id="skillPointsText">1</strong></div>
+          <button id="progressionClose" class="window-close" type="button" aria-label="Close character sheet">×</button>
         </div>
-        <div>
-          <h3>Loadout</h3>
-          <div class="equipment-row"><span>Weapon</span><strong id="weaponText">Field Sword</strong></div>
-          <div class="equipment-row"><span>Armor</span><strong id="armorText">Warden Coat</strong></div>
-          <div class="equipment-row"><span>Charm</span><strong id="charmText">Trail Charm</strong></div>
-          <h3>Inventory</h3>
-          <div id="inventoryList" class="inventory-list"></div>
-        </div>
+      </header>
+
+      <nav class="rpg-tabs" aria-label="Character sheet sections">
+        <button class="rpg-tab active" type="button" data-rpg-tab="character"><span>◆</span><b>Character</b><small>Loadout & stats</small></button>
+        <button class="rpg-tab" type="button" data-rpg-tab="skills"><span>✦</span><b>Skills</b><small>Warden discipline</small></button>
+        <button class="rpg-tab" type="button" data-rpg-tab="inventory"><span>◇</span><b>Inventory</b><small>Field equipment</small></button>
+      </nav>
+
+      <div class="rpg-tab-content">
+        <section class="rpg-view active" data-rpg-view="character">
+          <div class="character-sheet-grid">
+            <aside class="paper-doll-panel">
+              <div class="paper-doll-title"><span>THE WARDEN</span><small>WAYFARER</small></div>
+              <div class="paper-doll">
+                <button class="gear-slot gear-slot-weapon" type="button" data-slot-focus="weapon">
+                  <span class="slot-icon">⚔</span><small>WEAPON</small><strong id="weaponText">Field Sword</strong>
+                </button>
+                <div class="warden-silhouette" aria-hidden="true">
+                  <div class="silhouette-aura"></div>
+                  <span class="silhouette-rune">✦</span>
+                  <div class="silhouette-body">◆</div>
+                  <small>WARDEN</small>
+                </div>
+                <button class="gear-slot gear-slot-armor" type="button" data-slot-focus="armor">
+                  <span class="slot-icon">◈</span><small>ARMOR</small><strong id="armorText">Warden Coat</strong>
+                </button>
+                <button class="gear-slot gear-slot-charm" type="button" data-slot-focus="charm">
+                  <span class="slot-icon">✧</span><small>CHARM</small><strong id="charmText">Trail Charm</strong>
+                </button>
+              </div>
+              <div class="character-derived">
+                <div><span>POWER</span><strong id="powerText">0</strong></div>
+                <div><span>ARMOR</span><strong id="armorStatText">0</strong></div>
+                <div><span>VITALITY</span><strong id="healthStatText">0</strong></div>
+                <div><span>MOBILITY</span><strong id="speedStatText">0</strong></div>
+              </div>
+            </aside>
+
+            <div class="character-info-panel">
+              <div class="attribute-header">
+                <div><span class="eyebrow">BASE ATTRIBUTES</span><h3>Warden Attributes</h3></div>
+                <small>Raised automatically through field ranks.</small>
+              </div>
+              <div class="attribute-grid">
+                <div class="attribute-card strength"><span class="attribute-glyph">⚔</span><div><small>STRENGTH</small><strong id="strengthText">10</strong><p>Physical strike scaling</p></div></div>
+                <div class="attribute-card agility"><span class="attribute-glyph">➶</span><div><small>AGILITY</small><strong id="agilityText">10</strong><p>Movement and stamina</p></div></div>
+                <div class="attribute-card vitality"><span class="attribute-glyph">⬢</span><div><small>VITALITY</small><strong id="vitalityText">10</strong><p>Health and mitigation</p></div></div>
+              </div>
+              <div class="loadout-breakdown">
+                <div class="section-heading"><span>ACTIVE LOADOUT</span><small>Click a slot to inspect matching items.</small></div>
+                <div id="loadoutCards" class="loadout-cards"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="rpg-view" data-rpg-view="skills">
+          <div class="skills-header">
+            <div><span class="eyebrow">WARDEN DISCIPLINE</span><h3>Path of the Wayfarer</h3><p>Spend discipline points to deepen a path. Rank II branches into an active ability where available.</p></div>
+            <div class="discipline-orb"><span>AVAILABLE</span><strong id="skillPointsMirror">1</strong><small>POINTS</small></div>
+          </div>
+          <div class="skill-tree">
+            <div class="skill-branch blade">
+              <div class="branch-line"></div>
+              <button id="bladeSkillButton" class="tree-node-rpg" type="button" data-skill-choice="blade-mastery">
+                <span class="node-icon">⚔</span>
+                <div><small>BLADE PATH</small><strong>Blade Mastery</strong><p>Sharper fundamentals increase all strike damage.</p></div>
+                <span id="bladeSkillRank" class="node-rank">0 / 3</span>
+                <span class="rank-pips" data-rank-pips="blade-mastery"><i></i><i></i><i></i></span>
+              </button>
+              <div class="tree-connector"><span></span></div>
+              <div id="aegisUnlockNode" class="unlock-node locked">
+                <span class="node-icon">⬡</span>
+                <div><small>RANK II REWARD</small><strong>Aegis Burst</strong><p>Release a defensive shockwave that repels nearby enemies.</p></div>
+              </div>
+            </div>
+            <div class="skill-branch wind">
+              <div class="branch-line"></div>
+              <button id="windSkillButton" class="tree-node-rpg" type="button" data-skill-choice="wind-discipline">
+                <span class="node-icon">➶</span>
+                <div><small>WIND PATH</small><strong>Wind Discipline</strong><p>Reduce dash recovery and sharpen field mobility.</p></div>
+                <span id="windSkillRank" class="node-rank">0 / 3</span>
+                <span class="rank-pips" data-rank-pips="wind-discipline"><i></i><i></i><i></i></span>
+              </button>
+              <div class="tree-connector"><span></span></div>
+              <div id="windUnlockNode" class="unlock-node locked">
+                <span class="node-icon">✧</span>
+                <div><small>RANK II REWARD</small><strong>Wind Step</strong><p>Explode forward in a long invulnerable traversal burst.</p></div>
+              </div>
+            </div>
+            <div class="skill-branch heart">
+              <div class="branch-line"></div>
+              <button id="heartSkillButton" class="tree-node-rpg" type="button" data-skill-choice="iron-heart">
+                <span class="node-icon">⬢</span>
+                <div><small>IRON PATH</small><strong>Iron Heart</strong><p>Increase maximum health and recovery at campfires.</p></div>
+                <span id="heartSkillRank" class="node-rank">0 / 3</span>
+                <span class="rank-pips" data-rank-pips="iron-heart"><i></i><i></i><i></i></span>
+              </button>
+              <div class="tree-connector"><span></span></div>
+              <div class="unlock-node passive">
+                <span class="node-icon">✚</span>
+                <div><small>PASSIVE PATH</small><strong>Enduring Warden</strong><p>Every rank directly reinforces survival instead of unlocking an active skill.</p></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="rpg-view" data-rpg-view="inventory">
+          <div class="inventory-layout">
+            <div class="inventory-pane">
+              <div class="inventory-toolbar">
+                <div><span class="eyebrow">FIELD INVENTORY</span><h3>Equipment Cache</h3></div>
+                <div class="inventory-filters" aria-label="Inventory filters">
+                  <button class="inventory-filter active" type="button" data-inventory-filter="all">All</button>
+                  <button class="inventory-filter" type="button" data-inventory-filter="weapon">Weapons</button>
+                  <button class="inventory-filter" type="button" data-inventory-filter="armor">Armor</button>
+                  <button class="inventory-filter" type="button" data-inventory-filter="charm">Charms</button>
+                </div>
+              </div>
+              <div id="inventoryList" class="inventory-grid"></div>
+            </div>
+            <aside class="item-detail-panel">
+              <div id="itemDetailRarity" class="item-rarity">FIELD ISSUE</div>
+              <div id="itemDetailIcon" class="item-detail-icon">◇</div>
+              <h3 id="itemDetailName">Select equipment</h3>
+              <p id="itemDetailDescription">Choose an item from the cache to inspect its field properties.</p>
+              <div id="itemDetailStats" class="item-detail-stats"></div>
+              <button id="itemEquipButton" class="equip-button" type="button" disabled>Equip</button>
+            </aside>
+          </div>
+        </section>
       </div>
     </section>
 

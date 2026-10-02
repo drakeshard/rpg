@@ -91,6 +91,24 @@ import { areaAt, CollisionGrid, makeWorld as generateWorld, WORLD } from "./worl
     skill3CooldownText: element("skill3CooldownText"),
     skill2Slot: element("skill2Slot"),
     skill3Slot: element("skill3Slot"),
+    skillPointsMirror: element("skillPointsMirror"),
+    powerText: element("powerText"),
+    armorStatText: element("armorStatText"),
+    healthStatText: element("healthStatText"),
+    speedStatText: element("speedStatText"),
+    loadoutCards: element("loadoutCards"),
+    aegisUnlockNode: element("aegisUnlockNode"),
+    windUnlockNode: element("windUnlockNode"),
+    itemDetailRarity: element("itemDetailRarity"),
+    itemDetailIcon: element("itemDetailIcon"),
+    itemDetailName: element("itemDetailName"),
+    itemDetailDescription: element("itemDetailDescription"),
+    itemDetailStats: element("itemDetailStats"),
+    itemEquipButton: element("itemEquipButton") as HTMLButtonElement,
+    eventBanner: element("eventBanner"),
+    eventBannerKicker: element("eventBannerKicker"),
+    eventBannerTitle: element("eventBannerTitle"),
+    eventBannerText: element("eventBannerText"),
   };
 
   const audio = createAudio();
@@ -112,32 +130,111 @@ import { areaAt, CollisionGrid, makeWorld as generateWorld, WORLD } from "./worl
     ui.audioToggle.querySelector("span")!.textContent = audio.muted ? "Muted" : "Sound";
   });
 
+  let activeRpgTab: "character" | "skills" | "inventory" = "character";
+  let inventoryFilter: "all" | "weapon" | "armor" | "charm" = "all";
+  let selectedEquipment: EquipmentId | null = null;
+  let eventBannerTimer = 0;
+
+  const setRpgTab = (tab: "character" | "skills" | "inventory") => {
+    activeRpgTab = tab;
+    for (const button of Array.from(ui.progressionPanel.querySelectorAll<HTMLElement>("[data-rpg-tab]"))) {
+      button.classList.toggle("active", button.dataset.rpgTab === tab);
+    }
+    for (const view of Array.from(ui.progressionPanel.querySelectorAll<HTMLElement>("[data-rpg-view]"))) {
+      view.classList.toggle("active", view.dataset.rpgView === tab);
+    }
+    audio.play("uiSelect");
+  };
+
   const toggleProgression = (force?: boolean) => {
     const open = force ?? ui.progressionPanel.classList.contains("hidden");
     ui.progressionPanel.classList.toggle("hidden", !open);
-  };
-  ui.progressionToggle.addEventListener("click", () => toggleProgression());
-  ui.progressionClose.addEventListener("click", () => toggleProgression(false));
-  const spendNode = (choice: WardenSkillChoice) => {
-    if (progression.spendSkillPoint(choice)) {
-      syncDerivedStats();
-      showMessage("Warden discipline advanced", 1.2);
+    if (open) {
+      audio.play("uiOpen");
       updateUI();
     } else {
-      showMessage("No skill point available or node is at maximum rank", 1.2);
+      audio.play("uiClose");
+    }
+  };
+
+  const showEventBanner = (kicker: string, title: string, text: string, seconds = 2.1) => {
+    ui.eventBannerKicker.textContent = kicker;
+    ui.eventBannerTitle.textContent = title;
+    ui.eventBannerText.textContent = text;
+    ui.eventBanner.classList.remove("hidden", "reveal");
+    void ui.eventBanner.clientWidth;
+    ui.eventBanner.classList.add("reveal");
+    eventBannerTimer = seconds;
+  };
+
+  ui.progressionToggle.addEventListener("click", () => toggleProgression());
+  ui.progressionClose.addEventListener("click", () => toggleProgression(false));
+  for (const button of Array.from(ui.progressionPanel.querySelectorAll<HTMLElement>("[data-rpg-tab]"))) {
+    button.addEventListener("click", () => {
+      const tab = button.dataset.rpgTab;
+      if (tab === "character" || tab === "skills" || tab === "inventory") setRpgTab(tab);
+    });
+  }
+  for (const button of Array.from(ui.progressionPanel.querySelectorAll<HTMLElement>("[data-slot-focus]"))) {
+    button.addEventListener("click", () => {
+      const slot = button.dataset.slotFocus;
+      if (slot === "weapon" || slot === "armor" || slot === "charm") {
+        inventoryFilter = slot;
+        selectedEquipment = progression.profile.equipped(slot);
+        setRpgTab("inventory");
+        updateUI();
+      }
+    });
+  }
+  for (const button of Array.from(ui.progressionPanel.querySelectorAll<HTMLElement>("[data-inventory-filter]"))) {
+    button.addEventListener("click", () => {
+      const filter = button.dataset.inventoryFilter;
+      if (filter === "all" || filter === "weapon" || filter === "armor" || filter === "charm") {
+        inventoryFilter = filter;
+        audio.play("uiSelect");
+        updateUI();
+      }
+    });
+  }
+
+  const spendNode = (choice: WardenSkillChoice) => {
+    const beforeAegis = progression.ownsSkill("aegis-burst");
+    const beforeWind = progression.ownsSkill("wind-step");
+    if (progression.spendSkillPoint(choice)) {
+      syncDerivedStats();
+      audio.play("skillUnlock");
+      emitRing(player.x, player.y, "#e9d58e", 15, 65, 135);
+      showEventBanner("DISCIPLINE ADVANCED", "Warden path strengthened", "A discipline point has been committed.");
+      if (!beforeAegis && progression.ownsSkill("aegis-burst")) {
+        showEventBanner("ABILITY UNLOCKED", "Aegis Burst", "Press 2 to release a defensive shockwave.", 2.5);
+      } else if (!beforeWind && progression.ownsSkill("wind-step")) {
+        showEventBanner("ABILITY UNLOCKED", "Wind Step", "Press 3 for an extended invulnerable dash.", 2.5);
+      }
+      updateUI();
+    } else {
+      audio.play("interact");
+      showMessage("No discipline point available or node is at maximum rank", 1.2);
     }
   };
   ui.bladeSkillButton.addEventListener("click", () => spendNode("blade-mastery"));
   ui.windSkillButton.addEventListener("click", () => spendNode("wind-discipline"));
   ui.heartSkillButton.addEventListener("click", () => spendNode("iron-heart"));
+
   ui.inventoryList.addEventListener("click", (event) => {
     const target = (event.target as HTMLElement).closest<HTMLElement>("[data-equipment]");
     const id = target?.dataset.equipment as EquipmentId | undefined;
-    if (id && progression.equip(id)) {
-      syncDerivedStats();
-      showMessage(`${EQUIPMENT[id].name} equipped`, 1.1);
-      updateUI();
-    }
+    if (!id) return;
+    selectedEquipment = id;
+    audio.play("uiSelect");
+    updateUI();
+  });
+  ui.itemEquipButton.addEventListener("click", () => {
+    if (!selectedEquipment || !progression.equip(selectedEquipment)) return;
+    syncDerivedStats();
+    audio.play("equipment");
+    emitRing(player.x, player.y, "#d3b66d", 12, 55, 110);
+    showEventBanner("EQUIPMENT CHANGED", EQUIPMENT[selectedEquipment].name, "Loadout bonuses recalculated.", 1.7);
+    updateUI();
   });
 
   const stress = new URLSearchParams(location.search).has("stress");
@@ -242,6 +339,7 @@ import { areaAt, CollisionGrid, makeWorld as generateWorld, WORLD } from "./worl
     damageNumbers,
     visual,
     demoSprites,
+    objectiveReady: () => progression.currentQuest?.id === "beacon",
   });
 
   function syncResources(): void {
@@ -263,6 +361,14 @@ import { areaAt, CollisionGrid, makeWorld as generateWorld, WORLD } from "./worl
     if (!update?.completed) return;
     player.gold += update.rewardGold;
     if (update.rankGained > 0) syncDerivedStats();
+    audio.play("questComplete");
+    emitRing(player.x, player.y, "#dfc875", 20, 70, 120);
+    showEventBanner(
+      "QUEST COMPLETE",
+      update.completed.title,
+      `+${update.rewardXp} XP · +${update.rewardGold} gold`,
+      2.6,
+    );
     showMessage(
       `Quest complete: ${update.completed.title} · +${update.rewardXp} XP · +${update.rewardGold} gold`,
       2.6,
@@ -375,6 +481,80 @@ import { areaAt, CollisionGrid, makeWorld as generateWorld, WORLD } from "./worl
     }
   }
 
+  function emitRing(
+    x: number,
+    y: number,
+    color: string,
+    count: number,
+    radius: number,
+    speed: number,
+  ): void {
+    for (let i = 0; i < count && particles.length < SPAWN_LIMITS.maxParticles; i++) {
+      const angle = (i / count) * Math.PI * 2;
+      const wobble = range(-0.06, 0.06);
+      particles.push({
+        x: x + Math.cos(angle) * radius,
+        y: y + Math.sin(angle) * radius,
+        z: range(5, 18),
+        vx: Math.cos(angle + wobble) * speed,
+        vy: Math.sin(angle + wobble) * speed,
+        vz: range(18, 48),
+        life: range(0.38, 0.62),
+        maxLife: 0.62,
+        color,
+        size: range(2, 4.5),
+      });
+    }
+  }
+
+  function emitArc(
+    x: number,
+    y: number,
+    facingX: number,
+    facingY: number,
+    color: string,
+    count: number,
+    radius: number,
+  ): void {
+    const base = Math.atan2(facingY, facingX);
+    for (let i = 0; i < count && particles.length < SPAWN_LIMITS.maxParticles; i++) {
+      const t = count <= 1 ? 0.5 : i / (count - 1);
+      const angle = base - 1.1 + t * 2.2;
+      particles.push({
+        x: x + Math.cos(angle) * radius,
+        y: y + Math.sin(angle) * radius,
+        z: 14 + Math.sin(t * Math.PI) * 18,
+        vx: Math.cos(angle) * range(70, 130),
+        vy: Math.sin(angle) * range(70, 130),
+        vz: range(20, 55),
+        life: range(0.25, 0.48),
+        maxLife: 0.48,
+        color,
+        size: range(2.5, 5),
+      });
+    }
+  }
+
+  function emitWindWake(x: number, y: number, facingX: number, facingY: number): void {
+    const sideX = -facingY;
+    const sideY = facingX;
+    for (let i = 0; i < 18 && particles.length < SPAWN_LIMITS.maxParticles; i++) {
+      const side = range(-34, 34);
+      particles.push({
+        x: x - facingX * range(0, 65) + sideX * side,
+        y: y - facingY * range(0, 65) + sideY * side,
+        z: range(4, 24),
+        vx: -facingX * range(90, 180) + sideX * range(-35, 35),
+        vy: -facingY * range(90, 180) + sideY * range(-35, 35),
+        vz: range(8, 35),
+        life: range(0.28, 0.5),
+        maxLife: 0.5,
+        color: "#b8f2df",
+        size: range(2, 4),
+      });
+    }
+  }
+
   function attack(): void {
     if (!running || player.hp <= 0 || player.attackCooldown > 0) return;
     player.attackCooldown = 0.47;
@@ -421,7 +601,9 @@ import { areaAt, CollisionGrid, makeWorld as generateWorld, WORLD } from "./worl
         damageEnemy(enemy, Math.round(progression.stats.strikeDamage * 0.78));
         hits++;
       }
-      burst(player.x + player.facingX * 70, player.y + player.facingY * 70, "#d8efca", 16, 145);
+      emitArc(player.x, player.y, player.facingX, player.facingY, "#f3e7aa", 24, 72);
+      burst(player.x + player.facingX * 70, player.y + player.facingY * 70, "#d8efca", 12, 145);
+      audio.play("skillArc");
       visual.shake = Math.max(visual.shake, hits > 0 ? 3 : 1.4);
       showMessage(hits > 0 ? `Crescent Arc · ${hits} hit${hits === 1 ? "" : "s"}` : "Crescent Arc", 0.8);
       return;
@@ -444,7 +626,10 @@ import { areaAt, CollisionGrid, makeWorld as generateWorld, WORLD } from "./worl
         const length = Math.hypot(dx, dy) || 1;
         moveEntity(enemy, dx / length * 70, dy / length * 70);
       }
-      burst(player.x, player.y, "#9be0d0", 24, 175);
+      emitRing(player.x, player.y, "#a9f0da", 28, 34, 190);
+      emitRing(player.x, player.y, "#e8d798", 16, 68, 110);
+      burst(player.x, player.y, "#9be0d0", 18, 175);
+      audio.play("skillAegis");
       visual.shake = Math.max(visual.shake, 4);
       showMessage("Aegis Burst", 0.8);
       return;
@@ -463,7 +648,9 @@ import { areaAt, CollisionGrid, makeWorld as generateWorld, WORLD } from "./worl
     player.invuln = Math.max(player.invuln, 0.34);
     player.vx = player.dashX * 1050;
     player.vy = player.dashY * 1050;
-    burst(player.x, player.y, "#b9f4e1", 18, 150);
+    emitWindWake(player.x, player.y, player.facingX, player.facingY);
+    burst(player.x, player.y, "#b9f4e1", 12, 150);
+    audio.play("skillWind");
     showMessage("Wind Step", 0.7);
   }
 
@@ -546,6 +733,15 @@ import { areaAt, CollisionGrid, makeWorld as generateWorld, WORLD } from "./worl
       const rankGained = progression.addXp(baseXp);
       if (rankGained > 0) {
         syncDerivedStats();
+        audio.play("rankUp");
+        emitRing(player.x, player.y, "#f0d78b", 30, 45, 155);
+        emitRing(player.x, player.y, "#a8e1cc", 20, 78, 105);
+        showEventBanner(
+          "WARDEN RANK ADVANCED",
+          `Rank ${progression.profile.rank}`,
+          `+${rankGained} discipline point${rankGained === 1 ? "" : "s"} awarded`,
+          2.5,
+        );
         showMessage(`Warden rank advanced to ${progression.profile.rank}`, 1.8);
       }
       handleQuestUpdate(progression.recordKill(areaId));
@@ -775,12 +971,21 @@ import { areaAt, CollisionGrid, makeWorld as generateWorld, WORLD } from "./worl
       } else if (item.equipment) {
         const result = progression.collectEquipment(item.equipment as EquipmentId);
         syncDerivedStats();
+        audio.play("equipment");
+        emitRing(item.x, item.y, "#b99af3", 14, 22, 85);
+        showEventBanner(
+          result.equipped ? "EQUIPMENT UPGRADE" : "EQUIPMENT ACQUIRED",
+          result.item.name,
+          result.equipped ? "Automatically equipped as the stronger field item." : result.item.description,
+          2,
+        );
         showMessage(
           result.equipped ? `${result.item.name} acquired and equipped` : `${result.item.name} acquired`,
           1.5,
         );
+      } else {
+        audio.play("loot");
       }
-      audio.play("loot");
     } else if (item.type === "chest") {
       item.opened = true;
       item.openTime = 0;
@@ -935,6 +1140,10 @@ import { areaAt, CollisionGrid, makeWorld as generateWorld, WORLD } from "./worl
       messageTimer -= dt;
       if (messageTimer <= 0) ui.message.classList.add("hidden");
     }
+    if (eventBannerTimer > 0) {
+      eventBannerTimer -= dt;
+      if (eventBannerTimer <= 0) ui.eventBanner.classList.add("hidden");
+    }
     updateUI();
   }
 
@@ -957,15 +1166,51 @@ import { areaAt, CollisionGrid, makeWorld as generateWorld, WORLD } from "./worl
     ui.xpBar.style.width = `${xpPct}%`;
     ui.xpText.textContent = nextXp === null ? `${progression.profile.xp} XP · MAX` : `${progression.profile.xp} / ${nextXp} XP`;
     ui.skillPointsText.textContent = String(progression.profile.skillPoints);
+    ui.skillPointsMirror.textContent = String(progression.profile.skillPoints);
     ui.strengthText.textContent = String(progression.profile.attribute("strength"));
     ui.agilityText.textContent = String(progression.profile.attribute("agility"));
     ui.vitalityText.textContent = String(progression.profile.attribute("vitality"));
-    ui.bladeSkillRank.textContent = `Rank ${progression.profile.skillRank("blade-mastery")} / 3`;
-    ui.windSkillRank.textContent = `Rank ${progression.profile.skillRank("wind-discipline")} / 3`;
-    ui.heartSkillRank.textContent = `Rank ${progression.profile.skillRank("iron-heart")} / 3`;
-    ui.weaponText.textContent = progression.equipment("weapon").name;
-    ui.armorText.textContent = progression.equipment("armor").name;
-    ui.charmText.textContent = progression.equipment("charm").name;
+    const bladeRank = progression.profile.skillRank("blade-mastery");
+    const windRank = progression.profile.skillRank("wind-discipline");
+    const heartRank = progression.profile.skillRank("iron-heart");
+    ui.bladeSkillRank.textContent = `${bladeRank} / 3`;
+    ui.windSkillRank.textContent = `${windRank} / 3`;
+    ui.heartSkillRank.textContent = `${heartRank} / 3`;
+    for (const [choice, rank] of [
+      ["blade-mastery", bladeRank],
+      ["wind-discipline", windRank],
+      ["iron-heart", heartRank],
+    ] as const) {
+      const pips = ui.progressionPanel.querySelectorAll<HTMLElement>(`[data-rank-pips="${choice}"] i`);
+      pips.forEach((pip, index) => pip.classList.toggle("filled", index < rank));
+    }
+    const weapon = progression.equipment("weapon");
+    const armor = progression.equipment("armor");
+    const charm = progression.equipment("charm");
+    ui.weaponText.textContent = weapon.name;
+    ui.armorText.textContent = armor.name;
+    ui.charmText.textContent = charm.name;
+    ui.powerText.textContent = String(progression.stats.strikeDamage);
+    ui.armorStatText.textContent = String(progression.stats.armor);
+    ui.healthStatText.textContent = String(progression.stats.maxHealth);
+    ui.speedStatText.textContent = String(Math.round(progression.stats.moveSpeed));
+    ui.aegisUnlockNode.classList.toggle("locked", !progression.ownsSkill("aegis-burst"));
+    ui.aegisUnlockNode.classList.toggle("unlocked", progression.ownsSkill("aegis-burst"));
+    ui.windUnlockNode.classList.toggle("locked", !progression.ownsSkill("wind-step"));
+    ui.windUnlockNode.classList.toggle("unlocked", progression.ownsSkill("wind-step"));
+    const slotIcon = { weapon: "⚔", armor: "◈", charm: "✧" } as const;
+    ui.loadoutCards.innerHTML = (["weapon", "armor", "charm"] as const)
+      .map((slot) => {
+        const item = progression.equipment(slot);
+        const stats = [
+          item.attack ? `ATK +${item.attack}` : "",
+          item.armor ? `ARM +${item.armor}` : "",
+          item.vitality ? `VIT ${item.vitality > 0 ? "+" : ""}${item.vitality}` : "",
+          item.agility ? `AGI ${item.agility > 0 ? "+" : ""}${item.agility}` : "",
+        ].filter(Boolean).join(" · ");
+        return `<div class="loadout-card"><span class="loadout-card-icon">${slotIcon[slot]}</span><div><small>${slot.toUpperCase()} · TIER ${item.tier}</small><strong>${item.name}</strong></div><span class="loadout-card-stats">${stats || "No modifiers"}</span></div>`;
+      })
+      .join("");
     ui.skill2Slot.classList.toggle("locked", !progression.ownsSkill("aegis-burst"));
     ui.skill3Slot.classList.toggle("locked", !progression.ownsSkill("wind-step"));
     const skill1Cd = progression.cooldown("crescent-arc");
@@ -974,14 +1219,48 @@ import { areaAt, CollisionGrid, makeWorld as generateWorld, WORLD } from "./worl
     ui.skill1CooldownText.textContent = skill1Cd > 0 ? `${skill1Cd.toFixed(1)}S` : "READY";
     ui.skill2CooldownText.textContent = progression.ownsSkill("aegis-burst") ? (skill2Cd > 0 ? `${skill2Cd.toFixed(1)}S` : "READY") : "LOCKED";
     ui.skill3CooldownText.textContent = progression.ownsSkill("wind-step") ? (skill3Cd > 0 ? `${skill3Cd.toFixed(1)}S` : "READY") : "LOCKED";
-    ui.inventoryList.innerHTML = [...progression.inventory]
-      .sort((a, b) => EQUIPMENT[a].tier - EQUIPMENT[b].tier)
+    for (const button of Array.from(ui.progressionPanel.querySelectorAll<HTMLElement>("[data-inventory-filter]"))) {
+      button.classList.toggle("active", button.dataset.inventoryFilter === inventoryFilter);
+    }
+    const inventoryIds = [...progression.inventory]
+      .filter((id) => inventoryFilter === "all" || EQUIPMENT[id].slot === inventoryFilter)
+      .sort((a, b) => EQUIPMENT[b].tier - EQUIPMENT[a].tier || EQUIPMENT[a].name.localeCompare(EQUIPMENT[b].name));
+    if (selectedEquipment === null || !progression.inventory.has(selectedEquipment) || (inventoryFilter !== "all" && EQUIPMENT[selectedEquipment].slot !== inventoryFilter)) {
+      selectedEquipment = inventoryIds[0] ?? null;
+    }
+    const itemIcon = { weapon: "⚔", armor: "◈", charm: "✧" } as const;
+    ui.inventoryList.innerHTML = inventoryIds
       .map((id) => {
         const item = EQUIPMENT[id];
         const equipped = progression.profile.equipped(item.slot) === id;
-        return `<button class="inventory-item${equipped ? " equipped" : ""}" data-equipment="${id}" type="button"><span>${item.name}</span><strong>T${item.tier}${equipped ? " · EQUIPPED" : ""}</strong></button>`;
+        const selected = selectedEquipment === id;
+        return `<button class="inventory-item${equipped ? " equipped" : ""}${selected ? " selected" : ""}" data-equipment="${id}" type="button"><span class="inventory-item-icon">${itemIcon[item.slot]}</span><strong>${item.name}</strong><small>${item.slot.toUpperCase()} · TIER ${item.tier}</small>${equipped ? '<span class="inventory-equipped-tag">EQUIPPED</span>' : ""}</button>`;
       })
       .join("");
+    if (selectedEquipment) {
+      const item = EQUIPMENT[selectedEquipment];
+      const equipped = progression.profile.equipped(item.slot) === selectedEquipment;
+      ui.itemDetailRarity.textContent = `TIER ${item.tier} · ${item.slot.toUpperCase()}`;
+      ui.itemDetailIcon.textContent = itemIcon[item.slot];
+      ui.itemDetailName.textContent = item.name;
+      ui.itemDetailDescription.textContent = item.description;
+      ui.itemDetailStats.innerHTML = [
+        ["ATTACK", item.attack],
+        ["ARMOR", item.armor],
+        ["VITALITY", item.vitality],
+        ["AGILITY", item.agility],
+      ].map(([label, value]) => `<div class="item-stat"><span>${label}</span><strong>${Number(value) >= 0 ? "+" : ""}${value}</strong></div>`).join("");
+      ui.itemEquipButton.disabled = equipped;
+      ui.itemEquipButton.textContent = equipped ? "Equipped" : `Equip ${item.name}`;
+    } else {
+      ui.itemDetailRarity.textContent = "NO ITEM";
+      ui.itemDetailIcon.textContent = "◇";
+      ui.itemDetailName.textContent = "No equipment";
+      ui.itemDetailDescription.textContent = "No equipment matches the selected filter.";
+      ui.itemDetailStats.innerHTML = "";
+      ui.itemEquipButton.disabled = true;
+      ui.itemEquipButton.textContent = "Equip";
+    }
     if (shownKills !== player.kills) {
       if (shownKills >= 0) {
         ui.questPanel.classList.remove("updated");

@@ -35,6 +35,7 @@ interface RendererOptions {
   damageNumbers: { x: number; y: number; value: string; life: number; color: string }[];
   visual: VisualState;
   demoSprites: boolean;
+  objectiveReady: () => boolean;
 }
 
 const ISO_X = 0.72;
@@ -58,6 +59,7 @@ export function createRenderer(options: RendererOptions) {
     damageNumbers,
     visual,
     demoSprites,
+    objectiveReady,
   } = options;
 
   let visibleEntities = 0;
@@ -229,7 +231,7 @@ export function createRenderer(options: RendererOptions) {
     shadow(item.x, item.y, item.radius * item.scale, item.radius * item.scale * 0.32);
 
     if (item.type === "objective") {
-      const ready = player.kills >= 8;
+      const ready = objectiveReady();
       const pulse = 1 + Math.sin(visual.time * 4.2) * .07;
       ctx.save();
       ctx.translate(p.x, p.y);
@@ -926,7 +928,7 @@ export function createRenderer(options: RendererOptions) {
     const objective = decorative.find((item) => item.type === "objective");
     if (objective) {
       const q = map(objective.x, objective.y);
-      rctx.strokeStyle = player.kills >= 8 ? "#8de0c8" : "#d2b76f";
+      rctx.strokeStyle = objectiveReady() ? "#8de0c8" : "#d2b76f";
       rctx.lineWidth = 1.5;
       rctx.beginPath();
       rctx.arc(q.x, q.y, 5.5 + Math.sin(visual.time * 4) * 1.2, 0, Math.PI * 2);
