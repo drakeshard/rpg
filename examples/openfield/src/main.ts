@@ -18,9 +18,13 @@ import type {
   Prop,
   VisualState,
 } from "./model";
+import { EQUIPMENT } from "./progression-content";
 import { createRenderer } from "./rendering";
+import { equipmentDropForArea, OpenfieldProgression, type QuestUpdate } from "./openfield-progression";
 import { PlayerResources } from "./rpg-player-resources";
-import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } from "./world";
+import type { EquipmentId, WardenSkillChoice } from "./rpg-player-profile";
+import { SPAWN_LIMITS, SpawnDirector, type SpawnDirectorStats } from "./spawn-director";
+import { areaAt, CollisionGrid, makeWorld as generateWorld, WORLD } from "./world";
 
 (() => {
   "use strict";
@@ -60,6 +64,33 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
     audioPanel: element("audioPanel"),
     muteButton: element("muteButton"),
     questPanel: document.querySelector(".quest-panel") as HTMLElement,
+    areaName: element("areaName"),
+    rankText: element("rankText"),
+    xpBar: element("xpBar"),
+    xpText: element("xpText"),
+    progressionPanel: element("progressionPanel"),
+    progressionToggle: element("progressionToggle"),
+    progressionClose: element("progressionClose"),
+    panelRank: element("panelRank"),
+    skillPointsText: element("skillPointsText"),
+    strengthText: element("strengthText"),
+    agilityText: element("agilityText"),
+    vitalityText: element("vitalityText"),
+    bladeSkillButton: element("bladeSkillButton"),
+    windSkillButton: element("windSkillButton"),
+    heartSkillButton: element("heartSkillButton"),
+    bladeSkillRank: element("bladeSkillRank"),
+    windSkillRank: element("windSkillRank"),
+    heartSkillRank: element("heartSkillRank"),
+    weaponText: element("weaponText"),
+    armorText: element("armorText"),
+    charmText: element("charmText"),
+    inventoryList: element("inventoryList"),
+    skill1CooldownText: element("skill1CooldownText"),
+    skill2CooldownText: element("skill2CooldownText"),
+    skill3CooldownText: element("skill3CooldownText"),
+    skill2Slot: element("skill2Slot"),
+    skill3Slot: element("skill3Slot"),
   };
 
   const audio = createAudio();
@@ -79,6 +110,34 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
     ui.muteButton.setAttribute("aria-pressed", String(audio.muted));
     ui.muteButton.textContent = audio.muted ? "Unmute audio" : "Mute audio";
     ui.audioToggle.querySelector("span")!.textContent = audio.muted ? "Muted" : "Sound";
+  });
+
+  const toggleProgression = (force?: boolean) => {
+    const open = force ?? ui.progressionPanel.classList.contains("hidden");
+    ui.progressionPanel.classList.toggle("hidden", !open);
+  };
+  ui.progressionToggle.addEventListener("click", () => toggleProgression());
+  ui.progressionClose.addEventListener("click", () => toggleProgression(false));
+  const spendNode = (choice: WardenSkillChoice) => {
+    if (progression.spendSkillPoint(choice)) {
+      syncDerivedStats();
+      showMessage("Warden discipline advanced", 1.2);
+      updateUI();
+    } else {
+      showMessage("No skill point available or node is at maximum rank", 1.2);
+    }
+  };
+  ui.bladeSkillButton.addEventListener("click", () => spendNode("blade-mastery"));
+  ui.windSkillButton.addEventListener("click", () => spendNode("wind-discipline"));
+  ui.heartSkillButton.addEventListener("click", () => spendNode("iron-heart"));
+  ui.inventoryList.addEventListener("click", (event) => {
+    const target = (event.target as HTMLElement).closest<HTMLElement>("[data-equipment]");
+    const id = target?.dataset.equipment as EquipmentId | undefined;
+    if (id && progression.equip(id)) {
+      syncDerivedStats();
+      showMessage(`${EQUIPMENT[id].name} equipped`, 1.1);
+      updateUI();
+    }
   });
 
   const stress = new URLSearchParams(location.search).has("stress");
@@ -123,6 +182,14 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
   const damageNumbers: { x: number; y: number; value: string; life: number; color: string }[] = [];
   const visual: VisualState = { time: 0, shake: 0, hitStop: 0, objectivePulse: 0, debug: false };
   const resources = new PlayerResources();
+  const progression = new OpenfieldProgression();
+  const spawnDirector = new SpawnDirector();
+  let spawnStats: SpawnDirectorStats = {
+    area: areaAt(450, 760),
+    targetAlive: SPAWN_LIMITS.targetBase,
+    alive: 0,
+    totalAllocated: 0,
+  };
   let grid = new CollisionGrid([], []);
 
   const player: Player = {
@@ -130,7 +197,7 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
     y: 760,
     z: 0,
     radius: 24,
-    speed: 230,
+    speed: progression.stats.moveSpeed,
     hp: resources.health.current,
     maxHp: resources.health.capacity,
     hitFlash: 0,
@@ -184,6 +251,24 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
     player.maxStamina = resources.stamina.capacity;
   }
 
+  function syncDerivedStats(): void {
+    const stats = progression.stats;
+    resources.setHealthCapacity(stats.maxHealth);
+    resources.setStaminaCapacity(stats.maxStamina);
+    player.speed = stats.moveSpeed;
+    syncResources();
+  }
+
+  function handleQuestUpdate(update: QuestUpdate | null): void {
+    if (!update?.completed) return;
+    player.gold += update.rewardGold;
+    if (update.rankGained > 0) syncDerivedStats();
+    showMessage(
+      `Quest complete: ${update.completed.title} · +${update.rewardXp} XP · +${update.rewardGold} gold`,
+      2.6,
+    );
+  }
+
   function resize(): void {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const rect = canvas.getBoundingClientRect();
@@ -203,13 +288,21 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
     afterimages.length = 0;
     damageNumbers.length = 0;
     grid = next.grid;
+    spawnDirector.reset();
+    spawnStats = {
+      area: areaAt(player.x, player.y),
+      targetAlive: SPAWN_LIMITS.targetBase,
+      alive: enemies.filter((enemy) => !enemy.dead).length,
+      totalAllocated: enemies.length,
+    };
   }
 
   function resetGame(): void {
     resources.reset();
+    progression.reset();
     gameplayRng = new DeterministicRng(721944);
     fixedStep.reset();
-    syncResources();
+    syncDerivedStats();
     player.x = 450;
     player.y = 760;
     player.z = 0;
@@ -247,7 +340,7 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
     makeWorld();
     updateUI();
     hideEnd();
-    showMessage("Defeat 8 enemies, then activate the ruin beacon", 2.2);
+    showMessage("Begin the Warden trial: break the Greywood patrol", 2.2);
   }
 
   function collidesWithProps(x: number, y: number, radius: number): boolean {
@@ -300,7 +393,7 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
     for (const enemy of enemies) {
       if (enemy.dead || !inAttackArc(player, enemy, 105, 0.08)) continue;
       hitCount++;
-      damageEnemy(enemy, 32);
+      damageEnemy(enemy, progression.stats.strikeDamage);
       const dx = enemy.x - player.x;
       const dy = enemy.y - player.y;
       const distance = Math.hypot(dx, dy) || 1;
@@ -315,13 +408,72 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
     }
   }
 
+  function useSkill(slot: 1 | 2 | 3): void {
+    if (!running || player.hp <= 0) return;
+
+    if (slot === 1) {
+      if (resources.stamina.current < 20 || !progression.triggerSkill("crescent-arc", 2.8)) return;
+      resources.spendStamina(20);
+      syncResources();
+      let hits = 0;
+      for (const enemy of enemies) {
+        if (enemy.dead || !inAttackArc(player, enemy, 155, -0.15)) continue;
+        damageEnemy(enemy, Math.round(progression.stats.strikeDamage * 0.78));
+        hits++;
+      }
+      burst(player.x + player.facingX * 70, player.y + player.facingY * 70, "#d8efca", 16, 145);
+      visual.shake = Math.max(visual.shake, hits > 0 ? 3 : 1.4);
+      showMessage(hits > 0 ? `Crescent Arc · ${hits} hit${hits === 1 ? "" : "s"}` : "Crescent Arc", 0.8);
+      return;
+    }
+
+    if (slot === 2) {
+      if (!progression.ownsSkill("aegis-burst")) {
+        showMessage("Aegis Burst unlocks at Blade Mastery II", 1.1);
+        return;
+      }
+      if (resources.stamina.current < 35 || !progression.triggerSkill("aegis-burst", 7)) return;
+      resources.spendStamina(35);
+      syncResources();
+      player.invuln = Math.max(player.invuln, 0.45);
+      for (const enemy of enemies) {
+        if (enemy.dead || Math.hypot(enemy.x - player.x, enemy.y - player.y) > 130) continue;
+        damageEnemy(enemy, Math.round(progression.stats.strikeDamage * 0.62));
+        const dx = enemy.x - player.x;
+        const dy = enemy.y - player.y;
+        const length = Math.hypot(dx, dy) || 1;
+        moveEntity(enemy, dx / length * 70, dy / length * 70);
+      }
+      burst(player.x, player.y, "#9be0d0", 24, 175);
+      visual.shake = Math.max(visual.shake, 4);
+      showMessage("Aegis Burst", 0.8);
+      return;
+    }
+
+    if (!progression.ownsSkill("wind-step")) {
+      showMessage("Wind Step unlocks at Wind Discipline II", 1.1);
+      return;
+    }
+    if (resources.stamina.current < 30 || !progression.triggerSkill("wind-step", 5)) return;
+    resources.spendStamina(30);
+    syncResources();
+    player.dashTimer = 0.3;
+    player.dashX = player.facingX;
+    player.dashY = player.facingY;
+    player.invuln = Math.max(player.invuln, 0.34);
+    player.vx = player.dashX * 1050;
+    player.vy = player.dashY * 1050;
+    burst(player.x, player.y, "#b9f4e1", 18, 150);
+    showMessage("Wind Step", 0.7);
+  }
+
   function dash(): void {
     if (!running || player.hp <= 0 || player.dashCooldown > 0 || resources.stamina.current < 25) {
       return;
     }
     resources.spendStamina(25);
     syncResources();
-    player.dashCooldown = 1.05;
+    player.dashCooldown = progression.stats.dashCooldown;
     player.dashTimer = 0.18;
     player.dashX = player.facingX;
     player.dashY = player.facingY;
@@ -335,7 +487,8 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
 
   function damagePlayer(amount: number, from: Point | null): void {
     if (player.invuln > 0 || player.hp <= 0) return;
-    const dealt = resources.damage(amount);
+    const mitigated = Math.max(1, amount - progression.stats.armor * 0.45);
+    const dealt = resources.damage(mitigated);
     syncResources();
     damageNumbers.push({
       x: player.x,
@@ -388,7 +541,28 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
       enemy.state = "DEAD";
       enemy.deathTimer = 0.65;
       player.kills++;
-      if (gameplayRng.nextFloat01() < 0.68) {
+      const areaId = enemy.spawnArea ?? areaAt(enemy.x, enemy.y).id;
+      const baseXp = enemy.definition.id === "heavy" ? 38 : enemy.definition.id === "fast" ? 24 : 20;
+      const rankGained = progression.addXp(baseXp);
+      if (rankGained > 0) {
+        syncDerivedStats();
+        showMessage(`Warden rank advanced to ${progression.profile.rank}`, 1.8);
+      }
+      handleQuestUpdate(progression.recordKill(areaId));
+      const equipmentDrop = equipmentDropForArea(areaId, () => gameplayRng.nextFloat01());
+      if (equipmentDrop !== null && loot.length < SPAWN_LIMITS.maxLoot) {
+        loot.push({
+          x: enemy.x + 8,
+          y: enemy.y - 6,
+          type: "equipment",
+          amount: 1,
+          equipment: equipmentDrop,
+          picked: false,
+          pickupTime: 0,
+          age: 0,
+        });
+      }
+      if (gameplayRng.nextFloat01() < 0.68 && loot.length < SPAWN_LIMITS.maxLoot) {
         loot.push({
           x: enemy.x,
           y: enemy.y,
@@ -401,10 +575,9 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
       }
       burst(enemy.x, enemy.y, "#d8745e", 14, 110);
       audio.play("enemyDeath");
-      showMessage(`Enemy defeated · ${player.kills}/${OBJECTIVE_KILLS}`, 1.1);
-      if (player.kills >= OBJECTIVE_KILLS) {
+      if (progression.currentQuest?.id === "beacon") {
         visual.objectivePulse = 1.5;
-        showMessage("Beacon ready — find the ruins", 2);
+        showMessage("Beacon quest active — push east to the Broken Ruins", 1.8);
       }
     }
   }
@@ -420,7 +593,12 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
     player.dashTimer = Math.max(0, player.dashTimer - dt);
     player.invuln = Math.max(0, player.invuln - dt);
     player.hitFlash = Math.max(0, player.hitFlash - dt);
+    progression.updateCooldowns(dt);
 
+    if (actions.progression) toggleProgression();
+    if (actions.skill1) useSkill(1);
+    if (actions.skill2) useSkill(2);
+    if (actions.skill3) useSkill(3);
     if (actions.attack) attack();
     resolveAttackContact();
     if (actions.dash) dash();
@@ -585,15 +763,22 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
     const item = nearestInteractable();
     if (!item) return;
 
-    if (item.type === "gold" || item.type === "potion") {
+    if (item.type === "gold" || item.type === "potion" || item.type === "equipment") {
       item.picked = true;
       item.pickupTime = 0.28;
       if (item.type === "gold") {
         player.gold += item.amount;
         showMessage(`+${item.amount} gold`);
-      } else {
+      } else if (item.type === "potion") {
         player.potions++;
         showMessage("Health potion acquired · H to drink");
+      } else if (item.equipment) {
+        const result = progression.collectEquipment(item.equipment as EquipmentId);
+        syncDerivedStats();
+        showMessage(
+          result.equipped ? `${result.item.name} acquired and equipped` : `${result.item.name} acquired`,
+          1.5,
+        );
       }
       audio.play("loot");
     } else if (item.type === "chest") {
@@ -604,21 +789,23 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
       showMessage("Chest opened · +12 gold, +1 potion", 2);
       audio.play("chest");
     } else if (item.type === "campfire") {
-      resources.heal(35);
+      const healing = 35 + progression.profile.skillRank("iron-heart") * 8;
+      resources.heal(healing);
       syncResources();
-      showMessage("Rested at campfire · +35 HP", 1.5);
+      showMessage(`Rested at campfire · +${healing} HP`, 1.5);
       audio.play("potion");
     } else if (item.type === "objective") {
-      if (player.kills >= OBJECTIVE_KILLS) {
+      if (progression.currentQuest?.id === "beacon") {
+        handleQuestUpdate(progression.recordBeacon());
+        progression.profile.equip("charm", "beacon-sigil");
+        progression.inventory.add("beacon-sigil");
+        syncDerivedStats();
         winDelay = 0.9;
         visual.objectivePulse = 2.3;
-        showMessage("The beacon awakens", 1.8);
+        showMessage("The beacon awakens · Beacon Sigil equipped", 1.8);
         audio.play("objective");
       } else {
-        showMessage(
-          `Defeat ${OBJECTIVE_KILLS - player.kills} more enemies to activate the beacon`,
-          1.8,
-        );
+        showMessage("The beacon remains dormant. Complete your current field objective first.", 1.8);
         audio.play("interact");
       }
     }
@@ -640,11 +827,13 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
         ? "[E] Pick up gold"
         : item.type === "potion"
           ? "[E] Pick up potion"
+          : item.type === "equipment"
+            ? `[E] Take ${item.equipment ? EQUIPMENT[item.equipment as EquipmentId].name : "equipment"}`
           : item.type === "chest"
             ? "[E] Open Chest"
             : item.type === "campfire"
               ? "[E] Rest at Campfire"
-              : player.kills >= OBJECTIVE_KILLS
+              : progression.currentQuest?.id === "beacon"
                 ? "[E] Activate Beacon"
                 : "[E] Inspect Beacon"
       : "";
@@ -693,7 +882,12 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
       if (loot[index].picked) {
         loot[index].pickupTime -= dt;
         if (loot[index].pickupTime <= 0) loot.splice(index, 1);
+      } else if (loot[index].age > SPAWN_LIMITS.lootLifetimeSeconds) {
+        loot.splice(index, 1);
       }
+    }
+    if (damageNumbers.length > SPAWN_LIMITS.maxDamageNumbers) {
+      damageNumbers.splice(0, damageNumbers.length - SPAWN_LIMITS.maxDamageNumbers);
     }
     for (const item of decorative) {
       if (item.type === "chest" && item.opened && (item.openTime ?? 0) < 0.34) {
@@ -721,6 +915,14 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
     collisionCandidates = 0;
     updatePlayer(dt, held, actions);
     updateEnemies(dt);
+    spawnStats = spawnDirector.update(
+      dt,
+      enemies,
+      player,
+      progression.profile.rankIndex,
+      () => gameplayRng.nextFloat01(),
+      (x, y, radius) => grid.collides(x, y, radius),
+    );
     updateEffects(dt);
     updatePrompt();
 
@@ -743,9 +945,43 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
     ui.staminaBar.style.width = `${staminaPct}%`;
     ui.hpText.textContent = String(Math.ceil(player.hp));
     ui.staminaText.textContent = String(Math.ceil(player.stamina));
-    ui.objectiveText.textContent = `${player.kills} / ${OBJECTIVE_KILLS}`;
-    ui.objectiveStep.textContent =
-      player.kills >= OBJECTIVE_KILLS ? "Activate beacon" : "Clear hostiles";
+    const quest = progression.currentQuest;
+    ui.objectiveText.textContent = quest ? `${Math.min(progression.questProgress, quest.target)} / ${quest.target}` : "DONE";
+    ui.objectiveStep.textContent = quest?.title ?? "Greywood secured";
+    ui.areaName.textContent = spawnStats.area.name.toUpperCase();
+    ui.rankText.textContent = progression.profile.rank;
+    ui.panelRank.textContent = progression.profile.rank;
+    const nextXp = progression.profile.nextRankXp;
+    const currentFloor = progression.profile.rankIndex === 0 ? 0 : (progression.profile.rankIndex < 6 ? [0,120,310,600,1000,1550][progression.profile.rankIndex] ?? 0 : 0);
+    const xpPct = nextXp === null ? 100 : Math.max(0, Math.min(100, ((progression.profile.xp - currentFloor) / Math.max(1, nextXp - currentFloor)) * 100));
+    ui.xpBar.style.width = `${xpPct}%`;
+    ui.xpText.textContent = nextXp === null ? `${progression.profile.xp} XP · MAX` : `${progression.profile.xp} / ${nextXp} XP`;
+    ui.skillPointsText.textContent = String(progression.profile.skillPoints);
+    ui.strengthText.textContent = String(progression.profile.attribute("strength"));
+    ui.agilityText.textContent = String(progression.profile.attribute("agility"));
+    ui.vitalityText.textContent = String(progression.profile.attribute("vitality"));
+    ui.bladeSkillRank.textContent = `Rank ${progression.profile.skillRank("blade-mastery")} / 3`;
+    ui.windSkillRank.textContent = `Rank ${progression.profile.skillRank("wind-discipline")} / 3`;
+    ui.heartSkillRank.textContent = `Rank ${progression.profile.skillRank("iron-heart")} / 3`;
+    ui.weaponText.textContent = progression.equipment("weapon").name;
+    ui.armorText.textContent = progression.equipment("armor").name;
+    ui.charmText.textContent = progression.equipment("charm").name;
+    ui.skill2Slot.classList.toggle("locked", !progression.ownsSkill("aegis-burst"));
+    ui.skill3Slot.classList.toggle("locked", !progression.ownsSkill("wind-step"));
+    const skill1Cd = progression.cooldown("crescent-arc");
+    const skill2Cd = progression.cooldown("aegis-burst");
+    const skill3Cd = progression.cooldown("wind-step");
+    ui.skill1CooldownText.textContent = skill1Cd > 0 ? `${skill1Cd.toFixed(1)}S` : "READY";
+    ui.skill2CooldownText.textContent = progression.ownsSkill("aegis-burst") ? (skill2Cd > 0 ? `${skill2Cd.toFixed(1)}S` : "READY") : "LOCKED";
+    ui.skill3CooldownText.textContent = progression.ownsSkill("wind-step") ? (skill3Cd > 0 ? `${skill3Cd.toFixed(1)}S` : "READY") : "LOCKED";
+    ui.inventoryList.innerHTML = [...progression.inventory]
+      .sort((a, b) => EQUIPMENT[a].tier - EQUIPMENT[b].tier)
+      .map((id) => {
+        const item = EQUIPMENT[id];
+        const equipped = progression.profile.equipped(item.slot) === id;
+        return `<button class="inventory-item${equipped ? " equipped" : ""}" data-equipment="${id}" type="button"><span>${item.name}</span><strong>T${item.tier}${equipped ? " · EQUIPPED" : ""}</strong></button>`;
+      })
+      .join("");
     if (shownKills !== player.kills) {
       if (shownKills >= 0) {
         ui.questPanel.classList.remove("updated");
@@ -780,7 +1016,10 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
         `Objects ${props.length + decorative.length}\n` +
         `Collide ${collisionCandidates}\n` +
         `AI ticks ${aiUpdates}\n` +
-        `Dropped ${droppedSteps}`;
+        `Dropped ${droppedSteps}\n` +
+        `Area    ${spawnStats.area.id}\n` +
+        `Spawn   ${spawnStats.alive}/${spawnStats.targetAlive} alive · ${spawnStats.totalAllocated} allocated\n` +
+        `Loot    ${loot.length}/${SPAWN_LIMITS.maxLoot}`;
     }
   }
 
@@ -797,7 +1036,7 @@ import { CollisionGrid, makeWorld as generateWorld, OBJECTIVE_KILLS, WORLD } fro
     ui.endEyebrow.textContent = win ? "MISSION COMPLETE" : "RUN ENDED";
     ui.endTitle.textContent = win ? "Field Cleared" : "You Were Defeated";
     ui.endText.textContent = win
-      ? "The beacon is active. Greywood Outskirts are secure."
+      ? "The beacon is active. Greywood, Fenwatch, and the Broken Ruins are secure."
       : "The enemies overwhelmed you. Restart and try a different route.";
     ui.endScreen.classList.remove("hidden");
   }

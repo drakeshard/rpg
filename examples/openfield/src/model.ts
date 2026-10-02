@@ -16,6 +16,7 @@ export interface EnemyDefinition {
 }
 export interface Enemy extends Actor {
   id: number; z: number; definition: EnemyDefinition; homeX: number; homeY: number;
+  spawnArea?: string;
   state: EnemyState; stateTime: number; facingX: number; facingY: number;
   attackCooldown: number; dead: boolean; deathTimer: number;
   wanderAngle: number; wanderTimer: number; lastAttackSeen: number;
@@ -29,6 +30,13 @@ export type DecorType = 'ruin' | 'camp' | 'totem' | 'campfire' | 'chest' | 'obje
 export interface Decor extends Point { type: DecorType; radius: number; scale: number; opened?: boolean; openTime?: number }
 export interface Grass extends Point { size: number }
 export interface Particle extends Point { z: number; vx: number; vy: number; vz: number; life: number; maxLife: number; color: string; size: number }
-export interface Loot extends Point { type: 'gold' | 'potion'; amount: number; picked: boolean; pickupTime: number; age: number }
+export interface Loot extends Point {
+  type: 'gold' | 'potion' | 'equipment';
+  amount: number;
+  equipment?: string;
+  picked: boolean;
+  pickupTime: number;
+  age: number;
+}
 export interface Afterimage extends Point { facingX: number; facingY: number; life: number }
 export interface VisualState { time: number; shake: number; hitStop: number; objectivePulse: number; debug: boolean }

@@ -10,6 +10,7 @@ import type {
   VisualState,
 } from "./model";
 import { warriorFrame, wizardFrame, type SpriteFrame, type SpriteMotion } from "./sprite-art";
+import { WORLD } from "./world";
 
 interface Camera {
   x: number;
@@ -822,9 +823,17 @@ export function createRenderer(options: RendererOptions) {
     const p = project(item.x, item.y, lift);
     const scale = camera.zoom;
     const gold = item.type === "gold";
+    const equipment = item.type === "equipment";
     ctx.save();
     const glow = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, 18 * scale);
-    glow.addColorStop(0, gold ? "rgba(242, 205, 102, .34)" : "rgba(105, 220, 145, .3)");
+    glow.addColorStop(
+      0,
+      gold
+        ? "rgba(242, 205, 102, .34)"
+        : equipment
+          ? "rgba(160, 132, 255, .38)"
+          : "rgba(105, 220, 145, .3)",
+    );
     glow.addColorStop(1, "rgba(0,0,0,0)");
     ctx.fillStyle = glow;
     ctx.beginPath();
@@ -837,6 +846,16 @@ export function createRenderer(options: RendererOptions) {
       ctx.fill();
       ctx.strokeStyle = "#fff0aa";
       ctx.stroke();
+    } else if (equipment) {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(Math.PI / 4);
+      ctx.fillStyle = "#9d83ed";
+      ctx.fillRect(-7 * scale, -7 * scale, 14 * scale, 14 * scale);
+      ctx.strokeStyle = "#eadbff";
+      ctx.lineWidth = 1.5 * scale;
+      ctx.strokeRect(-7 * scale, -7 * scale, 14 * scale, 14 * scale);
+      ctx.restore();
     } else {
       ctx.fillStyle = "#75d49a";
       ctx.beginPath();
@@ -891,7 +910,10 @@ export function createRenderer(options: RendererOptions) {
       rctx.stroke();
     }
 
-    const map = (x: number, y: number) => ({ x: x / 1900 * width, y: y / 1500 * height });
+    const map = (x: number, y: number) => ({
+      x: x / WORLD.width * width,
+      y: y / WORLD.height * height,
+    });
     for (const enemy of enemies) {
       if (enemy.dead) continue;
       const q = map(enemy.x, enemy.y);
