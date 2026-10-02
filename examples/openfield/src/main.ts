@@ -339,6 +339,7 @@ import { areaAt, CollisionGrid, makeWorld as generateWorld, WORLD } from "./worl
     damageNumbers,
     visual,
     demoSprites,
+    objectiveReady: () => progression.currentQuest?.id === "beacon",
   });
 
   function syncResources(): void {
