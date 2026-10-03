@@ -61,7 +61,9 @@ function runCli() {
     process.exitCode = 1;
     return;
   }
-  console.log("Public API readiness: selected v0.1 surface is mechanically ready; npm publication remains closed.");
+  console.log(
+    "Public API readiness: selected v0.1 surface is mechanically ready; npm publication remains closed.",
+  );
 }
 
 const invokedPath = process.argv[1] ? path.resolve(process.argv[1]) : undefined;
