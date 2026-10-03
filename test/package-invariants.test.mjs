@@ -6,12 +6,30 @@ import { findPackageInvariantViolations } from "../scripts/check-package.mjs";
 
 const roots = [];
 const exportsMap = {
-  "./advancement": { types: "./dist/advancement/index.d.ts", import: "./dist/advancement/index.js" },
-  "./attributes": { types: "./dist/attributes/index.d.ts", import: "./dist/attributes/index.js" },
-  "./capabilities": { types: "./dist/capabilities/index.d.ts", import: "./dist/capabilities/index.js" },
-  "./loadout": { types: "./dist/loadout/index.d.ts", import: "./dist/loadout/index.js" },
-  "./resources": { types: "./dist/resources/index.d.ts", import: "./dist/resources/index.js" },
-  "./roles": { types: "./dist/roles/index.d.ts", import: "./dist/roles/index.js" },
+  "./advancement": {
+    types: "./dist/advancement/index.d.ts",
+    import: "./dist/advancement/index.js",
+  },
+  "./attributes": {
+    types: "./dist/attributes/index.d.ts",
+    import: "./dist/attributes/index.js",
+  },
+  "./capabilities": {
+    types: "./dist/capabilities/index.d.ts",
+    import: "./dist/capabilities/index.js",
+  },
+  "./loadout": {
+    types: "./dist/loadout/index.d.ts",
+    import: "./dist/loadout/index.js",
+  },
+  "./resources": {
+    types: "./dist/resources/index.d.ts",
+    import: "./dist/resources/index.js",
+  },
+  "./roles": {
+    types: "./dist/roles/index.d.ts",
+    import: "./dist/roles/index.js",
+  },
   "./specialization": {
     types: "./dist/specialization/index.d.ts",
     import: "./dist/specialization/index.js",
