@@ -1,7 +1,7 @@
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 function run(command, args, options = {}) {
@@ -59,7 +59,10 @@ export function verifyPackedConsumer({ root = process.cwd() } = {}) {
     }
 
     const imports = plan.exports
-      .map((entry) => `import * as ${entry.subpath.slice(2).replaceAll("-", "_")} from "@drakeshard/rpg/${entry.subpath.slice(2)}";`)
+      .map(
+        (entry) =>
+          `import * as ${entry.subpath.slice(2).replaceAll("-", "_")} from "@drakeshard/rpg/${entry.subpath.slice(2)}";`,
+      )
       .join("\n");
     const uses = plan.exports
       .map((entry) => `void ${entry.subpath.slice(2).replaceAll("-", "_")};`)
@@ -87,9 +90,17 @@ export function verifyPackedConsumer({ root = process.cwd() } = {}) {
       ),
     );
 
-    run(process.execPath, [path.join(root, "node_modules", "typescript", "bin", "tsc"), "-p", path.join(consumer, "tsconfig.json")], {
-      cwd: consumer,
-    });
+    run(
+      process.execPath,
+      [
+        path.join(root, "node_modules", "typescript", "bin", "tsc"),
+        "-p",
+        path.join(consumer, "tsconfig.json"),
+      ],
+      {
+        cwd: consumer,
+      },
+    );
     run(process.execPath, [path.join(consumer, "runtime.mjs")], { cwd: consumer });
 
     let rootImportFailed = false;
