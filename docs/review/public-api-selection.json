@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "package": "@drakeshard/rpg",
+  "status": "selected-pre-1.0",
+  "admissionGate": "selected",
+  "publishAuthorized": false,
+  "reason": "Owner-authorized v0.1 public API selection based on completed incubation and Openfield integration evidence. npm publication remains separate.",
+  "exports": [
+    {
+      "subpath": "./advancement",
+      "source": "src/advancement/index.ts",
+      "dist": "dist/advancement/index.js",
+      "types": "dist/advancement/index.d.ts"
+    },
+    {
+      "subpath": "./attributes",
+      "source": "src/attributes/index.ts",
+      "dist": "dist/attributes/index.js",
+      "types": "dist/attributes/index.d.ts"
+    },
+    {
+      "subpath": "./capabilities",
+      "source": "src/capabilities/index.ts",
+      "dist": "dist/capabilities/index.js",
+      "types": "dist/capabilities/index.d.ts"
+    },
+    {
+      "subpath": "./loadout",
+      "source": "src/loadout/index.ts",
+      "dist": "dist/loadout/index.js",
+      "types": "dist/loadout/index.d.ts"
+    },
+    {
+      "subpath": "./resources",
+      "source": "src/resources/index.ts",
+      "dist": "dist/resources/index.js",
+      "types": "dist/resources/index.d.ts"
+    },
+    {
+      "subpath": "./roles",
+      "source": "src/roles/index.ts",
+      "dist": "dist/roles/index.js",
+      "types": "dist/roles/index.d.ts"
+    },
+    {
+      "subpath": "./specialization",
+      "source": "src/specialization/index.ts",
+      "dist": "dist/specialization/index.js",
+      "types": "dist/specialization/index.d.ts"
+    }
+  ]
+}
