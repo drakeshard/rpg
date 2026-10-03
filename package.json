@@ -2,14 +2,43 @@
   "name": "@drakeshard/rpg",
   "version": "0.1.0",
   "private": true,
+  "description": "Renderer-neutral RPG domain state mechanisms for Drakeshard games.",
   "type": "module",
   "packageManager": "pnpm@12.8.1",
-  "engines": {
-    "node": "24.21.0"
-  },
   "files": [
     "dist"
   ],
+  "sideEffects": false,
+  "exports": {
+    "./advancement": {
+      "types": "./dist/advancement/index.d.ts",
+      "import": "./dist/advancement/index.js"
+    },
+    "./attributes": {
+      "types": "./dist/attributes/index.d.ts",
+      "import": "./dist/attributes/index.js"
+    },
+    "./capabilities": {
+      "types": "./dist/capabilities/index.d.ts",
+      "import": "./dist/capabilities/index.js"
+    },
+    "./loadout": {
+      "types": "./dist/loadout/index.d.ts",
+      "import": "./dist/loadout/index.js"
+    },
+    "./resources": {
+      "types": "./dist/resources/index.d.ts",
+      "import": "./dist/resources/index.js"
+    },
+    "./roles": {
+      "types": "./dist/roles/index.d.ts",
+      "import": "./dist/roles/index.js"
+    },
+    "./specialization": {
+      "types": "./dist/specialization/index.d.ts",
+      "import": "./dist/specialization/index.js"
+    }
+  },
   "scripts": {
     "check": "pnpm check:format && pnpm check:architecture && pnpm check:package",
     "check:write": "biome check --write .",
@@ -17,12 +46,31 @@
     "check:architecture": "node scripts/check-architecture.mjs",
     "check:package": "node scripts/check-package.mjs",
     "check:build": "node scripts/check-build.mjs",
+    "check:public-api-readiness": "node scripts/check-public-api-readiness.mjs",
+    "check:package-consumer": "node scripts/check-package-consumer.mjs",
     "typecheck": "pnpm typecheck:src && pnpm typecheck:test",
     "typecheck:src": "tsc --noEmit -p tsconfig.json",
     "typecheck:test": "tsc --noEmit -p tsconfig.test.json",
     "test": "vitest run --passWithNoTests",
     "build": "tsc",
-    "verify": "pnpm check && pnpm typecheck && pnpm test && pnpm build && pnpm check:build"
+    "verify": "pnpm check && pnpm typecheck && pnpm test && pnpm build && pnpm check:build && pnpm check:public-api-readiness && pnpm check:package-consumer"
+  },
+  "keywords": [
+    "game-development",
+    "rpg",
+    "progression",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/drakeshard/rpg.git"
+  },
+  "bugs": {
+    "url": "https://github.com/drakeshard/rpg/issues"
+  },
+  "homepage": "https://github.com/drakeshard/rpg#readme",
+  "publishConfig": {
+    "access": "public"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.14",
